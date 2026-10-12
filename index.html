@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnòstic de processos — SolutionPartner.AI</title>
+<style>
+  :root{
+    --accent:#0b1d32;--accent-dark:#14243a;--gold:#e7c47d;--ink:#0b1d32;
+    --muted:#64748b;--bg:#f8fafc;--card:#fff;--line:#e2e8f0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
+  .container{max-width:860px;margin:0 auto;padding:0 20px;}
+
+  header{background:linear-gradient(160deg,#0b1d32,#14243a,#0b1d32);color:#fff;padding:56px 0 64px;position:relative;overflow:hidden;}
+  header::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(217,154,43,.18),transparent 45%);}
+  .eyebrow{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px;}
+  h1{font-size:clamp(1.8rem,4.5vw,2.5rem);line-height:1.15;font-weight:800;max-width:24ch;}
+  .subtitle{margin-top:14px;color:#e9ecf4;max-width:60ch;}
+  .premium{display:flex;align-items:center;gap:10px;margin-top:18px;background:rgba(231,196,125,.10);border:1px solid rgba(231,196,125,.35);border-radius:12px;padding:12px 16px;}
+  .premium .tag{flex-shrink:0;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;}
+  .premium p{color:#e9ecf4;font-size:.92rem;line-height:1.5;margin:0;}
+
+  .progress-wrap{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .progress-inner{max-width:860px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px;}
+  .progress-bar{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:99px;transition:width .4s;}
+  .progress-label{font-size:.8rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+
+  section{padding:34px 0;}
+  .area-head{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
+  .area-num{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;}
+  .area-head h2{font-size:1.3rem;font-weight:800;}
+  .area-note{color:var(--muted);font-size:.9rem;margin-bottom:18px;}
+
+  .field{margin-bottom:16px;}
+  .lbl{display:block;font-weight:700;font-size:.9rem;margin-bottom:5px;color:var(--ink);}
+  .req{color:#b91c1c;}
+  textarea.inp,.inp,.inp-sel{width:100%;padding:12px;border:2px solid var(--line);border-radius:10px;font-size:.95rem;font-family:inherit;resize:vertical;min-height:44px;background:#fff;}
+  .inp:focus,.inp-sel:focus{outline:none;border-color:var(--accent);}
+  .hint{font-size:.78rem;color:var(--muted);margin-top:4px;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;margin-bottom:20px;}
+  .card .lead-title{font-size:1.15rem;font-weight:800;margin-bottom:6px;}
+  .card .lead-desc{color:var(--muted);font-size:.9rem;margin-bottom:20px;}
+
+  /* taules dinàmiques */
+  .dyn{margin-top:6px;}
+  .dyn-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;}
+  .dyn-row .del{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;cursor:pointer;font-weight:700;padding:6px 12px;font-size:.85rem;}
+  .dyn-add{background:rgba(11,29,50,.05);color:var(--accent);border:2px dashed var(--accent);border-radius:12px;padding:12px;font-weight:700;cursor:pointer;width:100%;font-size:.95rem;font-family:inherit;transition:background .15s;}
+  .dyn-add:hover{background:rgba(231,196,125,.18);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+  .num-cell{display:flex;gap:8px;}
+  .num-cell input{min-width:0;}
+
+  /* pasos dins d'un procés */
+  .pasos{margin-top:10px;border-top:1px dashed var(--line);padding-top:12px;}
+  .paso{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:8px;}
+  .paso-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .paso-head .pnum{font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;}
+  .paso-head .del-p{background:none;border:none;color:#b91c1c;font-weight:700;cursor:pointer;font-size:.82rem;}
+  .paso-add{background:rgba(231,196,125,.12);color:#7c5f1e;border:1px solid rgba(231,196,125,.5);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:.85rem;font-family:inherit;}
+
+  .actions{text-align:center;padding:24px 0 40px;}
+  .btn{display:inline-block;background:var(--accent);color:#fff;font-weight:800;text-decoration:none;padding:15px 34px;border-radius:10px;font-size:1.05rem;border:none;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.15);}
+
+  .msg{display:none;text-align:center;padding:18px;border-radius:12px;margin-bottom:20px;font-weight:600;}
+  .msg.ok{background:#fdf6e3;color:#14243a;border:1px solid #e8c987;}
+  .msg.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+
+  #toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0b1d32;color:#fff;padding:14px 22px;border-radius:12px;font-weight:600;font-size:.95rem;box-shadow:0 12px 30px rgba(0,0,0,.25);z-index:200;max-width:90vw;text-align:center;}
+  #toast.err{background:#991b1b;}
+
+  #successScreen{display:none;padding:60px 0;text-align:center;}
+  .success-icon{width:76px;height:76px;border-radius:50%;background:#fdf6e3;border:2px solid #e8c987;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;}
+  .success-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:44px 30px;box-shadow:0 20px 50px rgba(15,23,42,.08);}
+  .success-card h2{font-size:1.7rem;font-weight:800;margin-bottom:12px;}
+  .success-card p{color:var(--muted);margin-bottom:8px;max-width:48ch;margin-left:auto;margin-right:auto;}
+
+  .field.missing .inp,.field.missing .inp-sel{border-color:#b91c1c;}
+  .field.missing .lbl::after{content:" — obligatori";color:#b91c1c;font-weight:600;font-size:.78rem;}
+
+  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container" style="position:relative;z-index:2;">
+    <span class="eyebrow">Diagnòstic de processos</span>
+    <h1>Explica'ns com funciona el teu negoci, pas a pas</h1>
+    <p class="subtitle">Amb aquestes respostes fem el mapa de processos del teu negoci i t'expliquem on perds hores i diners. No és un qüestionari genèric: cada resposta alimenta un diagnòstic real de la teva empresa.</p>
+    <div class="premium">
+      <span class="tag">Metodologia BPMN</span>
+      <p><b>El mateix llenguatge que fan servir les grans consultores:</b> dibuixem els teus processos en BPMN (l'estàndard internacional) i hi marquem on hi ha feina manual, esperes i colls d'ampolla.</p>
+    </div>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 0</div>
+  </div>
+</div>
+
+<div class="container">
+  <div id="formScreen">
+
+    <section>
+      <div class="area-head"><div class="area-num">A</div><div><h2>La teva empresa</h2><p class="area-note">Les dades bàsiques per saber qui ets i a què et dediques.</p></div></div>
+      <div class="card">
+        <div class="field"><label class="lbl">Nom de l'empresa <span class="req">*</span></label><input class="inp q" data-k="empresa_nombre" type="text"></div>
+        <div class="field"><label class="lbl">Nom i cognoms de qui omple el qüestionari <span class="req">*</span></label><input class="inp q" data-k="contacto_nombre" type="text"></div>
+        <div class="field"><label class="lbl">Correu electrònic <span class="req">*</span></label><input class="inp q" data-k="contacto_email" type="email"></div>
+        <div class="grid2">
+          <div class="field"><label class="lbl">A què et dediques (activitat) <span class="req">*</span></label><input class="inp q" data-k="empresa_actividad" type="text"></div>
+          <div class="field"><label class="lbl">Quants treballadors</label>
+            <select class="inp-sel q" data-k="empresa_empleados">
+              <option value="">—</option>
+              <option value="1-9">1-9</option>
+              <option value="10-49">10-49</option>
+              <option value="50-249">50-249</option>
+              <option value="250+">250 o més</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label class="lbl">Objectius: què t'agradaria aconseguir amb la digitalització?</label><textarea class="inp q" data-k="empresa_objetivos" rows="3" placeholder="Ex: facturar tot el que fem, perdre menys temps amb paper..."></textarea></div>
+        <div class="field"><label class="lbl">Quina tasca repetitiva eliminaries demà si poguessis?</label><input class="inp q" data-k="empresa_tarea_eliminar" type="text" placeholder="Ex: passar els parts de treball a les factures"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">B</div><div><h2>La teva gent</h2><p class="area-note">Qui fa què. Un rol per línia (ex: gerent, administrativa, 2 tècnics...).</p></div></div>
+      <div class="card">
+        <div class="field"><label class="lbl">Dolors principals: on creus que perds més temps o diners? <span class="req">*</span></label><textarea class="inp q" data-k="empresa_dolores" rows="3" placeholder="Ex: copiem tot a mà del WhatsApp al programa, es perden dades..."></textarea></div>
+        <div id="equipoDyn" class="dyn"></div>
+        <button type="button" class="dyn-add" onclick="addRol()">+ Afegeix un rol</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">C</div><div><h2>Les eines que feu servir</h2><p class="area-note">Programes, correu, fulles de càlcul... una eina per línia.</p></div></div>
+      <div class="card">
+        <div id="toolsDyn" class="dyn"></div>
+        <button type="button" class="dyn-add" onclick="addTool()">+ Afegeix una eina</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">D</div><div><h2>Els teus processos</h2><p class="area-note">El cor del diagnòstic. Un procés per targeta: què es fa, quantes vegades, qui ho fa i els passos de què consta. <b>Posa-hi els passos tal com es fan avui</b>, encara que siguin a mà.</p></div></div>
+      <div class="card">
+        <p class="area-note" style="margin-bottom:14px;">Exemple: «Facturació» — l'administrativa agafa els parts de paper, els passa al programa, revisa preus, imprimeix i envia. Cada pas que facis a mà és un punt on es perden hores.</p>
+        <div id="procsDyn" class="dyn"></div>
+        <button type="button" class="dyn-add" onclick="addProc()">+ Afegeix un procés</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="area-head"><div class="area-num">E</div><div><h2>Seguretat i altres</h2><p class="area-note">Opcional, però ajuda.</p></div></div>
+      <div class="card">
+        <div class="field"><label class="lbl">On teniu les dades dels clients?</label><input class="inp q" data-k="seguridad_datos" type="text" placeholder="Ex: tot al programa de gestió, algunes coses a Excel"></div>
+        <div class="field"><label class="lbl">Feu còpies de seguretat? Sabeu com?</label><input class="inp q" data-k="seguridad_backups" type="text"></div>
+        <div class="field"><label class="lbl">Fas servir alguna eina d'IA (ChatGPT o similar)? Per a què?</label><input class="inp q" data-k="ia_uso" type="text"></div>
+        <div class="field"><label class="lbl">Alguna cosa més que hauríem de saber?</label><textarea class="inp q" data-k="extra_comentarios" rows="3"></textarea></div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <div id="sendMsg" class="msg"></div>
+      <button class="btn" onclick="enviar()">Envia el diagnòstic</button>
+      <p class="hint" style="margin-top:10px;">Trigues el que necessitis: les respostes es guarden al teu navegador mentre escreus.</p>
+    </div>
+  </div>
+
+  <div id="successScreen">
+    <div class="success-card">
+      <div class="success-icon">✓</div>
+      <h2>Rebut!</h2>
+      <p>Gràcies. Amb això ja podem preparar el mapa de processos del teu negoci i l'informe d'on perds hores i diners.</p>
+      <p>Et contactarem molt aviat per revisar-ho amb tu, pas a pas.</p>
+      <p style="margin-top:18px;"><a class="btn ghost" style="background:#0b1d32;color:#fff;border:none;" href="https://solutionpartner.github.io/auditoria/">Torna a l'auditoria</a></p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  SolutionPartner.AI · AI Strategy &amp; Automation · Barcelona<br>
+  Les teves respostes arriben directament a SolutionPartner.AI. No les compartim amb tercers.
+</footer>
+
+<div id="toast"></div>
+
+<script>
+/* ---- clau pública Web3Forms (la mateixa que el qüestionari 1B) ---- */
+const WEB3FORMS_KEY = "7bf49537-789a-492c-ab78-d14a79d0fe6e";
+
+/* ---- emmagatzematge local (autoguardat) ---- */
+const LSKEY = "spai-diag-processos-v1";
+function saveLS(){ try{ const d = recollir(); localStorage.setItem(LSKEY, JSON.stringify(d)); }catch(e){} }
+function loadLS(){ try{ return JSON.parse(localStorage.getItem(LSKEY) || "null"); }catch(e){ return null; } }
+
+/* ---- helpers ---- */
+function el(id){ return document.getElementById(id); }
+function toast(msg, err){ const t = el("toast"); t.textContent = msg; t.className = err ? "err" : ""; t.style.display = "block"; clearTimeout(t._t); t._t = setTimeout(()=>{ t.style.display = "none"; }, 3200); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+
+/* ---- B · rols dinàmics ---- */
+let nRoles = 0;
+function addRol(rol, personas){
+  nRoles++;
+  const id = "rol_" + nRoles;
+  const div = document.createElement("div");
+  div.className = "dyn-row";
+  div.innerHTML = `<div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Rol (ex: gerent, administrativa) ${rol===undefined?'<span class="req">*</span>':''}</label><input class="inp" data-role="nombre" type="text" value="${esc(rol||"")}"></div>
+      <div class="field"><label class="lbl">Persones</label><input class="inp" data-role="personas" type="number" min="1" max="500" value="${personas||1}"></div>
+    </div>
+  </div><button class="del" type="button">✕ Treu</button>`;
+  div.querySelector(".del").onclick = ()=>{ div.remove(); updateProgress(); saveLS(); };
+  div.querySelectorAll("input").forEach(i=>{ i.addEventListener("input", ()=>{ updateProgress(); saveLS(); }); });
+  el("equipoDyn").appendChild(div);
+  updateProgress();
+}
+function addTool(nombre, categoria, uso){
+  const div = document.createElement("div");
+  div.className = "dyn-row";
+  div.innerHTML = `<div>
+    <div class="field"><label class="lbl">Eina (ex: programa de gestió, Excel, Gmail)</label><input class="inp" data-tool="nombre" type="text" value="${esc(nombre||"")}"></div>
+    <div class="grid2">
+      <div class="field"><label class="lbl">Tipus</label>
+        <select class="inp-sel" data-tool="categoria">
+          <option value="">—</option>
+          ${["programa de gestió (ERP)","CRM","comptabilitat","fulla de càlcul","correu","missatgeria (WhatsApp...)","botiga online","altres"].map(c=>`<option value="${c}" ${categoria===c?"selected":""}>${c}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field"><label class="lbl">Per a què la feu servir</label><input class="inp" data-tool="uso" type="text" value="${esc(uso||"")}"></div>
+    </div>
+  </div><button class="del" type="button">✕ Treu</button>`;
+  div.querySelector(".del").onclick = ()=>{ div.remove(); updateProgress(); saveLS(); };
+  div.querySelectorAll("input,select").forEach(i=>{ i.addEventListener("input", ()=>{ updateProgress(); saveLS(); }); });
+  el("toolsDyn").appendChild(div);
+  updateProgress();
+}
+
+/* ---- D · processos dinàmics amb passos ---- */
+let nProcs = 0;
+function addProc(){
+  nProcs++;
+  const pid = "proc_" + nProcs;
+  const div = document.createElement("div");
+  div.className = "dyn-row";
+  div.style.display = "block";
+  div.innerHTML = `
+  <div class="paso-head" style="margin-bottom:10px;">
+    <b style="color:var(--accent);">Procés ${nProcs}</b>
+    <button class="del" type="button" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;cursor:pointer;font-weight:700;padding:6px 12px;font-size:.85rem;">✕ Treu el procés</button>
+  </div>
+  <div class="grid2">
+    <div class="field"><label class="lbl">Nom del procés <span class="req">*</span></label><input class="inp" data-proc="nombre" type="text" placeholder="Ex: Facturació de clients"></div>
+    <div class="field"><label class="lbl">Qui ho fa (rol) <span class="req">*</span></label><input class="inp" data-proc="propietario" type="text" placeholder="Ex: administrativa"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label class="lbl">Cada quant passa (vegades)</label><input class="inp" data-proc="frec_veces" type="number" min="0" placeholder="Ex: 60"></div>
+    <div class="field"><label class="lbl">Període</label>
+      <select class="inp-sel" data-proc="frec_periodo">
+        <option value="">—</option><option value="dia">al dia</option><option value="setmana">a la setmana</option><option value="mes">al mes</option><option value="any">a l'any</option>
+      </select>
+    </div>
+  </div>
+  <div class="field"><label class="lbl">Què passa un cop acabat?</label><input class="inp" data-proc="siguiente" type="text" placeholder="Ex: es envia al client / passa al departament de cobraments"></div>
+  <div class="pasos">
+    <div class="lbl" style="margin-bottom:8px;">Els passos, tal com es fan avui:</div>
+    <div class="pasos-list"></div>
+    <button type="button" class="paso-add" style="margin-top:8px;">+ Afegeix un pas</button>
+  </div>`;
+  div.querySelector(".paso-head .del").onclick = ()=>{ div.remove(); updateProgress(); saveLS(); };
+  const pasosList = div.querySelector(".pasos-list");
+  const addPasoBtn = div.querySelector(".paso-add");
+  addPasoBtn.onclick = ()=>{ addPaso(pasosList, div); };
+  div.querySelectorAll("input,select").forEach(i=>{ i.addEventListener("input", ()=>{ updateProgress(); saveLS(); }); });
+  el("procsDyn").appendChild(div);
+  addPaso(pasosList, div);
+  updateProgress();
+}
+function addPaso(pasosList, procDiv){
+  const n = pasosList.querySelectorAll(".paso").length + 1;
+  const div = document.createElement("div");
+  div.className = "paso";
+  div.innerHTML = `
+  <div class="paso-head">
+    <span class="pnum">Pas ${n}</span>
+    <button class="del-p" type="button">✕</button>
+  </div>
+  <div class="field"><label class="lbl">Què es fa</label><input class="inp" data-paso="nombre" type="text" placeholder="Ex: agafar els parts de paper"></div>
+  <div class="grid2">
+    <div class="field"><label class="lbl">Minuts (aprox.)</label><input class="inp" data-paso="min" type="number" min="0" placeholder="Ex: 10"></div>
+    <div class="field"><label class="lbl">Es fa a mà?</label>
+      <select class="inp-sel" data-paso="manual">
+        <option value="">—</option>
+        <option value="si">Sí, a mà</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+  </div>
+  <div class="field"><label class="lbl">Què hi fa doler o triga?</label><input class="inp" data-paso="dolor" type="text" placeholder="Ex: arriben en paper i s'han de tornar a escriure al programa"></div>`;
+  div.querySelector(".del-p").onclick = ()=>{ div.remove(); renum(pasosList); updateProgress(); saveLS(); };
+  div.querySelectorAll("input,select").forEach(i=>{ i.addEventListener("input", ()=>{ updateProgress(); saveLS(); }); });
+  pasosList.appendChild(div);
+  updateProgress();
+}
+function renum(pasosList){ pasosList.querySelectorAll(".paso").forEach((p,i)=>{ p.querySelector(".pnum").textContent = "Pas " + (i+1); }); }
+
+/* ---- progrés: comptar camps obligatoris i total ---- */
+function reqFilled(){
+  let ok = 0, tot = 0;
+  const q = sel => document.querySelectorAll(sel);
+  const reqs = [
+    ...q('[data-k="empresa_nombre"]'), ...q('[data-k="contacto_nombre"]'), ...q('[data-k="contacto_email"]'),
+    ...q('[data-k="empresa_actividad"]'), ...q('[data-k="empresa_dolores"]'),
+    ...q('#procsDyn [data-proc="nombre"]'), ...q('#procsDyn [data-proc="propietario"]')
+  ];
+  reqs.forEach(r=>{ tot++; if(String(r.value||"").trim()) ok++; });
+  return [ok, tot];
+}
+function updateProgress(){
+  const [ok, tot] = reqFilled();
+  el("progressLabel").textContent = ok + " / " + tot;
+  const p = tot ? Math.round(ok/tot*100) : 0;
+  el("progressFill").style.width = p + "%";
+}
+
+/* ---- recollir-ho tot en el format del kit (respuestas-unificades/1) ---- */
+function slug(s){ return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
+function val(elq){ return String(elq.value||"").trim(); }
+function recollir(){
+  const g = (k)=>{ const e = document.querySelector(`[data-k="${k}"]`); return e ? val(e) : ""; };
+  const equipo = [];
+  el("equipoDyn").querySelectorAll(".dyn-row").forEach((r,i)=>{
+    const nombre = val(r.querySelector('[data-role="nombre"]'));
+    if(!nombre) return;
+    equipo.push({ id:"r"+(i+1), rol: nombre, personas: parseInt(val(r.querySelector('[data-role="personas"]')))||1 });
+  });
+  const herramientas = [];
+  el("toolsDyn").querySelectorAll(".dyn-row").forEach((r,i)=>{
+    const nombre = val(r.querySelector('[data-tool="nombre"]'));
+    if(!nombre) return;
+    herramientas.push({ id:"h"+(i+1), nombre, categoria: val(r.querySelector('[data-tool="categoria"]')), uso: val(r.querySelector('[data-tool="uso"]')) });
+  });
+  const procesos = [];
+  el("procsDyn").querySelectorAll(".dyn-row").forEach((r,i)=>{
+    const nombre = val(r.querySelector('[data-proc="nombre"]'));
+    if(!nombre) return;
+    const pasos = [];
+    r.querySelectorAll(".paso").forEach((p,j)=>{
+      const nom = val(p.querySelector('[data-paso="nombre"]'));
+      if(!nom) return;
+      pasos.push({
+        paso: j+1, id: "p"+(j+1), nombre: nom,
+        tiempo_min: parseInt(val(p.querySelector('[data-paso="min"]')))||0,
+        manual: val(p.querySelector('[data-paso="manual"]')),
+        dolor: val(p.querySelector('[data-paso="dolor"]'))
+      });
+    });
+    procesos.push({
+      idx: i+1,
+      nombre,
+      propietario: val(r.querySelector('[data-proc="propietario"]')),
+      frecuencia: { veces: parseInt(val(r.querySelector('[data-proc="frec_veces"]')))||0, periodo: val(r.querySelector('[data-proc="frec_periodo"]')) },
+      siguiente: val(r.querySelector('[data-proc="siguiente"]')),
+      pasos
+    });
+  });
+  return {
+    formato: "respuestas-unificadas/1",
+    version_formulario: "diagnostic-processos/1.0.0",
+    creado: window._creado || (window._creado = new Date().toISOString()),
+    guardado: new Date().toISOString(),
+    empresa: {
+      nombre: g("empresa_nombre"), actividad: g("empresa_actividad"),
+      pais: "España", sector: "", empleados: g("empresa_empleados"),
+      objetivos: g("empresa_objetivos") ? [g("empresa_objetivos")] : [],
+      dolores_principales: g("empresa_dolores"),
+      tarea_a_eliminar: g("empresa_tarea_eliminar")
+    },
+    contacto: { nombre: g("contacto_nombre"), email: g("contacto_email") },
+    equipo, herramientas, procesos,
+    seguridad: { datos: g("seguridad_datos"), backups: g("seguridad_backups") },
+    ia: { uso: g("ia_uso") },
+    extra: { comentarios: g("extra_comentarios") },
+    comentarios: g("extra_comentarios")
+  };
+}
+
+/* ---- restaurar ---- */
+function restaurar(){
+  const d = loadLS(); if(!d) return false;
+  const set = (k, v)=>{ const e = document.querySelector(`[data-k="${k}"]`); if(e && v!=null && v!=="") e.value = v; };
+  set("empresa_nombre", d.empresa && d.empresa.nombre);
+  set("empresa_actividad", d.empresa && d.empresa.actividad);
+  set("empresa_empleados", d.empresa && d.empresa.empleados);
+  set("empresa_objetivos", (d.empresa && d.empresa.objetivos||[]).join("; "));
+  set("empresa_dolores", d.empresa && d.empresa.dolores_principales);
+  set("empresa_tarea_eliminar", d.empresa && d.empresa.tarea_a_eliminar);
+  set("contacto_nombre", d.contacto && d.contacto.nombre);
+  set("contacto_email", d.contacto && d.contacto.email);
+  set("seguridad_datos", d.seguridad && d.seguridad.datos);
+  set("seguridad_backups", d.seguridad && d.seguridad.backups);
+  set("ia_uso", d.ia && d.ia.uso);
+  set("extra_comentarios", d.extra && d.extra.comentarios);
+  (d.equipo||[]).forEach(r=> addRol(r.rol, r.personas));
+  (d.herramientas||[]).forEach(h=> addTool(h.nombre, h.categoria, h.uso));
+  (d.procesos||[]).forEach(pr=>{
+    addProc();
+    const rows = el("procsDyn").querySelectorAll(".dyn-row");
+    const row = rows[rows.length-1];
+    row.querySelector('[data-proc="nombre"]').value = pr.nombre || "";
+    row.querySelector('[data-proc="propietario"]').value = pr.propietario || "";
+    row.querySelector('[data-proc="frec_veces"]').value = (pr.frecuencia&&pr.frecuencia.veces) || "";
+    row.querySelector('[data-proc="frec_periodo"]').value = (pr.frecuencia&&pr.frecuencia.periodo) || "";
+    row.querySelector('[data-proc="siguiente"]').value = pr.siguiente || "";
+    const pasosList = row.querySelector(".pasos-list");
+    (pr.pasos||[]).forEach(ps=>{
+      addPaso(pasosList, row);
+      const pasoDiv = pasosList.querySelectorAll(".paso")[pasosList.querySelectorAll(".paso").length-1];
+      pasoDiv.querySelector('[data-paso="nombre"]').value = ps.nombre || "";
+      pasoDiv.querySelector('[data-paso="min"]').value = ps.tiempo_min || "";
+      pasoDiv.querySelector('[data-paso="manual"]').value = ps.manual || "";
+      pasoDiv.querySelector('[data-paso="dolor"]').value = ps.dolor || "";
+    });
+  });
+  updateProgress();
+  return true;
+}
+
+/* ---- enviament ---- */
+async function enviar(){
+  const d = recollir();
+  const [ok, tot] = reqFilled();
+  // validar mínims
+  const falten = [];
+  document.querySelectorAll(".field").forEach(f=>f.classList.remove("missing"));
+  const mark = k=>{ const e = document.querySelector(`[data-k="${k}"]`); if(e && !String(e.value||"").trim()){ e.closest(".field").classList.add("missing"); falten.push(k); } };
+  ["empresa_nombre","contacto_nombre","contacto_email","empresa_actividad","empresa_dolores"].forEach(mark);
+  if(!d.procesos.length){ toast("Afegeix almenys un procés amb els seus passos.", true); document.getElementById("procsDyn").scrollIntoView({behavior:"smooth"}); return; }
+  if(!d.procesos.some(p=>p.pasos.length)){ toast("Posa els passos d'almenys un procés.", true); return; }
+  if(falten.length){ toast("Falten camps obligatoris.", true); document.querySelector(".field.missing").scrollIntoView({behavior:"smooth", block:"center"}); return; }
+
+  const btns = document.querySelectorAll(".actions .btn");
+  btns.forEach(b=>b.disabled = true);
+  const msg = el("sendMsg");
+  msg.style.display = "block"; msg.className = "msg"; msg.textContent = "Enviant…";
+
+  const fd = new FormData();
+  fd.append("access_key", WEB3FORMS_KEY);
+  fd.append("subject", "Diagnòstic de processos — " + (d.empresa.nombre || "sense nom"));
+  fd.append("from_name", "Web Diagnòstic Processos SPAI");
+  fd.append("formato", "diagnostic-processos");
+  fd.append("datos", JSON.stringify(d, null, 1));
+
+  try{
+    const r = await fetch("https://api.web3forms.com/submit", { method:"POST", body: fd });
+    const j = await r.json();
+    if(j.success){
+      localStorage.removeItem(LSKEY);
+      el("formScreen").style.display = "none";
+      el("successScreen").style.display = "block";
+      window.scrollTo({top:0, behavior:"smooth"});
+    } else {
+      throw new Error(j.message || "error");
+    }
+  }catch(e){
+    msg.className = "msg err"; msg.textContent = "No s'ha pogut enviar. Torna-ho a provar."; toast("Error enviant: " + e.message, true);
+  } finally {
+    btns.forEach(b=>b.disabled = false);
+  }
+}
+
+/* ---- autoguardat en curs ---- */
+document.addEventListener("input", e=>{ if(e.target.matches(".inp,.inp-sel")) saveLS(); });
+
+/* ---- iniciar ---- */
+addRol(); addTool(); addProc();
+if(!restaurar()){ updateProgress(); }
+window.addEventListener("load", updateProgress);
+</script>
+</body>
+</html>
