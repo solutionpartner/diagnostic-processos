@@ -156,6 +156,11 @@
     <section>
       <div class="area-head"><div class="area-num">C</div><div><h2>Les eines que feu servir</h2><p class="area-note">Programes, correu, fulles de càlcul... una eina per línia. Les farem servir als passos dels processos.</p></div></div>
       <div class="card">
+        <div class="field"><label class="lbl">Programa de gestió principal (ERP / CRM) <span class="req">*</span></label><input class="inp q" data-k="sistema_principal" type="text" placeholder="Ex: ClinicSoft, Zuccarello, Datisa, Sage, un CRM, o «cap / sole Excel»" list="dlSistemes"></div>
+        <div class="field"><label class="lbl">Com es connecta (quan ho sapigueu)</label><input class="inp q" data-k="sistema_conexion" type="text" placeholder="Ex: hi treballem l'administrativa i jo; no sé si té aplicació de mòbil"></div>
+        <div class="field"><label class="lbl">Facturació i tributació electrònica (Verifactu / contingència)</label><input class="inp q" data-k="sistema_facturacion" type="text" placeholder="Ex: facturem amb el programa; no sabem què és Verifactu"></div>
+        <div class="field"><label class="lbl">Com contacteu amb els clients (WhatsApp, correu, SMS...)</label><input class="inp q" data-k="sistema_contacto" type="text" placeholder="Ex: WhatsApp del mòbil de l'oficina i correu de la clínica"></div>
+        <div class="field"><label class="lbl">Explica breument la vostra xarxa/tant per tant (opcional)</label><input class="inp q" data-k="sistema_nota" type="text" placeholder="Ex: l'administrativa fa tot amb el mateix ordinador; el gerent veu els informes a Excel"></div>
         <div id="toolsDyn"></div>
         <button type="button" class="dyn-add" onclick="addTool()">+ Afegeix una eina</button>
       </div>
@@ -457,6 +462,10 @@ function recollir(){
       objetivos: g("empresa_objetivos") ? g("empresa_objetivos").split("\n").map(s=>s.trim()).filter(Boolean) : [],
       dolores_principales: g("empresa_dolores"), tarea_a_eliminar: g("empresa_tarea_eliminar")
     },
+    sistema: {
+      principal: g("sistema_principal"), conexion: g("sistema_conexion"),
+      facturacion: g("sistema_facturacion"), contacto: g("sistema_contacto"), nota: g("sistema_nota")
+    },
     contacto: { nombre: g("contacto_nombre"), email: g("contacto_email") },
     equipo, herramientas, procesos,
     seguridad: { datos: g("seguridad_datos"), backups: g("seguridad_backups") },
@@ -472,6 +481,8 @@ function restaurar(){
   set("empresa_nombre", d.empresa?.nombre); set("empresa_actividad", d.empresa?.actividad);
   set("empresa_sector", d.empresa?.sector); set("empresa_empleados", d.empresa?.empleados);
   set("empresa_objetivos", (d.empresa?.objetivos||[]).join("\n"));
+  set("sistema_principal", d.sistema?.principal); set("sistema_conexion", d.sistema?.conexion);
+  set("sistema_facturacion", d.sistema?.facturacion); set("sistema_contacto", d.sistema?.contacto); set("sistema_nota", d.sistema?.nota);
   set("empresa_dolores", d.empresa?.dolores_principales); set("empresa_tarea_eliminar", d.empresa?.tarea_a_eliminar);
   set("contacto_nombre", d.contacto?.nombre); set("contacto_email", d.contacto?.email);
   set("seguridad_datos", d.seguridad?.datos); set("seguridad_backups", d.seguridad?.backups);
@@ -544,5 +555,6 @@ addRol(); addTool(); addProc();
 if(!restaurar()){ updateProgress(); }
 window.addEventListener("load", updateProgress);
 </script>
+<datalist id="dlSistemes"><option label="ERP/CRM" value="ClinicSoft"><option label="ERP" value="Zuccarello"><option label="ERP" value="Datisa"><option label="ERP/CRM" value="Sage"><option label="ERP" value="EOI"><option label="ERP" value="A3"><option label="ERP" value="Holded"><option label="CRM" value="Pipedrive"><option label="CRM" value="HubSpot"><option label="CRM" value="Salesforce"><option label="ERP" value="Oddo"><option label="" value="Només Excel/paper"><option label="" value="Encara no ho sé"></datalist>
 </body>
 </html>
