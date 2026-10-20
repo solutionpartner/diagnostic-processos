@@ -1,560 +1,1307 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ca">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
 <title>Diagnòstic de processos — SolutionPartner.AI</title>
 <style>
-  :root{
-    --accent:#0b1d32;--accent-dark:#14243a;--gold:#e7c47d;--ink:#0b1d32;
-    --muted:#64748b;--bg:#f8fafc;--card:#fff;--line:#e2e8f0;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
-  .container{max-width:860px;margin:0 auto;padding:0 20px;}
+:root {
+  --marca: #1f3a5f;
+  --acento: #e4572e;
+  --tinta: #1d232b;
+  --suave: #5b6573;
+  --linea: #dfe3e8;
+  --fondo: #f5f6f8;
+  --papel: #fff;
+  --ok: #067647;
+  --aviso: #b54708;
+  --aviso-fondo: #fffaeb;
+  --sugerido: #fff6d5;
+  --radio: 12px;
+  --letra: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; font: 16px/1.5 var(--letra); color: var(--tinta); background: var(--fondo); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--marca); }
+h1, h2, h3, h4 { line-height: 1.2; margin: 0 0 .4em; letter-spacing: -.01em; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.15rem; }
+p { margin: 0 0 .9em; }
+.suave { color: var(--suave); }
+.oculto { display: none !important; }
 
-  header{background:linear-gradient(160deg,#0b1d32,#14243a,#0b1d32);color:#fff;padding:56px 0 64px;position:relative;overflow:hidden;}
-  header::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(217,154,43,.18),transparent 45%);}
-  .eyebrow{display:inline-block;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:12px;}
-  h1{font-size:clamp(1.8rem,4.5vw,2.5rem);line-height:1.15;font-weight:800;max-width:24ch;}
-  .subtitle{margin-top:14px;color:#e9ecf4;max-width:60ch;}
-  .premium{display:flex;align-items:center;gap:10px;margin-top:18px;background:rgba(231,196,125,.10);border:1px solid rgba(231,196,125,.35);border-radius:12px;padding:12px 16px;}
-  .premium .tag{flex-shrink:0;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:800;}
-  .premium p{color:#e9ecf4;font-size:.92rem;line-height:1.5;margin:0;}
+/* ---------- estructura ---------- */
+.cabecera { background: var(--marca); color: #fff; }
+.cabecera-in { max-width: 1180px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 14px; }
+.cabecera img { height: 34px; max-width: 150px; object-fit: contain; background: #fff; border-radius: 6px; padding: 3px; }
+.cabecera-txt { flex: 1; min-width: 0; }
+.cabecera-txt b { display: block; }
+.cabecera-txt span { font-size: .85rem; opacity: .8; }
+.guardado { font-size: .78rem; opacity: .85; white-space: nowrap; }
+.marco { max-width: 1180px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 250px 1fr; gap: 24px; align-items: start; }
+.lateral { position: sticky; top: 16px; background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio); padding: 10px; }
+.lateral ol { list-style: none; margin: 0; padding: 0; }
+.lateral li button { width: 100%; text-align: left; border: 0; background: none; padding: 9px 10px; border-radius: 8px; cursor: pointer; display: flex; gap: 10px; align-items: center; font-size: .92rem; }
+.lateral li button:hover { background: var(--fondo); }
+.lateral li button.actual { background: color-mix(in srgb, var(--marca) 10%, white); font-weight: 600; color: var(--marca); }
+.lateral .num { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: .75rem; border: 1.5px solid var(--linea); flex: none; }
+.lateral .hecho .num { background: var(--ok); border-color: var(--ok); color: #fff; }
+.lateral .otra { opacity: .55; }
+.lateral .otra small { display: block; font-size: .7rem; }
+.progreso { height: 6px; background: var(--fondo); border-radius: 3px; overflow: hidden; margin: 10px 4px 4px; }
+.progreso div { height: 100%; background: var(--acento); transition: width .3s; }
+.progreso-txt { font-size: .75rem; color: var(--suave); margin: 0 4px 4px; }
+.contenido, .lateral { min-width: 0; }
+.seccion { background: var(--papel); border: 1px solid var(--linea); border-radius: var(--radio); padding: 28px; }
+.seccion > h2 { margin-bottom: .25em; }
+.intro { color: var(--suave); max-width: 720px; }
+.bloque { border-top: 1px solid var(--linea); margin-top: 24px; padding-top: 20px; }
+.bloque > h3 { margin-bottom: .2em; }
+.bloque > .ayuda { margin-bottom: 14px; }
+.navegacion { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; }
 
-  .progress-wrap{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.04);}
-  .progress-inner{max-width:860px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px;}
-  .progress-bar{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden;}
-  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));border-radius:99px;transition:width .4s;}
-  .progress-label{font-size:.8rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+/* ---------- campos ---------- */
+.campo { margin: 0 0 18px; }
+.campo > label, .campo > .etiqueta { display: block; font-weight: 600; margin-bottom: 6px; }
+.campo .opcional { font-weight: 400; color: var(--suave); font-size: .85rem; }
+.ayuda { font-size: .85rem; color: var(--suave); margin: -2px 0 8px; }
+input[type=text], input[type=number], input[type=email], select, textarea { width: 100%; border: 1px solid var(--linea); border-radius: 8px; padding: 10px 12px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 18%, transparent); }
+textarea { min-height: 76px; resize: vertical; }
+.fila { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.opciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.op { position: relative; }
+.op input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.op span { display: inline-block; border: 1px solid var(--linea); background: #fff; border-radius: 20px; padding: 7px 14px; font-size: .9rem; cursor: pointer; user-select: none; }
+.op input:checked + span { background: var(--marca); border-color: var(--marca); color: #fff; }
+.op input:focus-visible + span { box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 25%, transparent); }
+.op.nose span { border-style: dashed; }
+.casilla { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.casilla input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
 
-  section{padding:34px 0;}
-  .area-head{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
-  .area-num{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;}
-  .area-head h2{font-size:1.3rem;font-weight:800;}
-  .area-note{color:var(--muted);font-size:.9rem;margin-bottom:18px;}
+.boton { border: 1px solid var(--linea); background: #fff; border-radius: 10px; padding: 9px 16px; cursor: pointer; font-weight: 600; font-size: .92rem; }
+.boton:hover { border-color: var(--marca); color: var(--marca); }
+.boton.principal { background: var(--marca); border-color: var(--marca); color: #fff; }
+.boton.principal:hover { filter: brightness(1.1); color: #fff; }
+.boton.acento { background: var(--acento); border-color: var(--acento); color: #fff; }
+.boton.peligro:hover { border-color: #b42318; color: #b42318; }
+.boton.peque { padding: 5px 10px; font-size: .8rem; border-radius: 8px; font-weight: 500; }
+.boton:disabled { opacity: .5; cursor: default; }
+.icono { border: 0; background: none; cursor: pointer; padding: 4px 7px; border-radius: 6px; color: var(--suave); font-size: .95rem; }
+.icono:hover { background: var(--fondo); color: var(--tinta); }
+.rapidos { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 14px; }
+.rapidos button { border: 1px dashed #b8c0ca; background: #fff; border-radius: 16px; padding: 4px 12px; font-size: .85rem; cursor: pointer; }
+.rapidos button:hover { border-color: var(--marca); color: var(--marca); }
+.rapidos button[disabled] { opacity: .4; cursor: default; }
 
-  .field{margin-bottom:16px;}
-  .lbl{display:block;font-weight:700;font-size:.9rem;margin-bottom:5px;color:var(--ink);}
-  .req{color:#b91c1c;}
-  textarea.inp,.inp,.inp-sel{width:100%;padding:12px;border:2px solid var(--line);border-radius:10px;font-size:.95rem;font-family:inherit;resize:vertical;min-height:44px;background:#fff;}
-  .inp:focus,.inp-sel:focus{outline:none;border-color:var(--accent);}
-  .hint{font-size:.78rem;color:var(--muted);margin-top:4px;}
+/* ---------- tarjetas de lista ---------- */
+.tarjeta { border: 1px solid var(--linea); border-radius: 10px; padding: 14px; margin-bottom: 10px; background: #fff; }
+.tarjeta-cab { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.tarjeta-cab input[type=text] { font-weight: 600; }
+.tarjeta-cab .acciones { margin-left: auto; display: flex; gap: 2px; }
+details.mas { margin-top: 8px; }
+details.mas > summary { cursor: pointer; font-size: .85rem; color: var(--marca); font-weight: 600; }
+details.mas[open] > summary { margin-bottom: 12px; }
 
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;margin-bottom:20px;}
+/* ---------- procesos ---------- */
+.catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.proc-op { border: 1px solid var(--linea); border-radius: 10px; padding: 12px 14px; background: #fff; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; }
+.proc-op:hover { border-color: var(--marca); }
+.proc-op.elegido { border-color: var(--marca); background: color-mix(in srgb, var(--marca) 6%, white); }
+.proc-op input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+.proc-op b { display: block; font-size: .95rem; }
+.proc-op small { color: var(--suave); font-size: .82rem; display: block; }
+.proc-op .tipico { display: inline-block; font-size: .7rem; font-weight: 700; color: var(--ok); background: #ecfdf3; border-radius: 4px; padding: 0 6px; margin-top: 4px; }
+.proceso { border: 1px solid var(--linea); border-radius: var(--radio); margin: 14px 0; background: #fff; overflow: hidden; }
+.proceso > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; gap: 12px; align-items: center; background: #fafbfc; }
+.proceso > summary::-webkit-details-marker { display: none; }
+.proceso > summary::before { content: "▸"; color: var(--suave); transition: transform .2s; }
+.proceso[open] > summary::before { transform: rotate(90deg); }
+.proceso > summary b { flex: 1; }
+.estado { font-size: .75rem; font-weight: 700; border-radius: 12px; padding: 2px 9px; white-space: nowrap; }
+.estado.vacio { background: var(--fondo); color: var(--suave); }
+.estado.medias { background: var(--aviso-fondo); color: var(--aviso); }
+.estado.listo { background: #ecfdf3; color: var(--ok); }
+.proceso-cuerpo { padding: 6px 18px 18px; }
+.paso { border: 1px solid var(--linea); border-left: 4px solid var(--marca); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: #fff; }
+.paso.decision { border-left-color: #f59e0b; }
+.paso.espera { border-left-color: #94a3b8; }
+.paso.comunicacion { border-left-color: #0ea5e9; }
+.paso.sugerido { background: var(--sugerido); }
+.paso-cab { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.paso-num { width: 28px; height: 28px; border-radius: 50%; background: var(--marca); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: .85rem; flex: none; }
+.decision .paso-num { background: #f59e0b; }
+.tipos { display: inline-flex; border: 1px solid var(--linea); border-radius: 8px; overflow: hidden; }
+.tipos button { border: 0; background: #fff; padding: 5px 10px; font-size: .8rem; cursor: pointer; border-right: 1px solid var(--linea); }
+.tipos button:last-child { border-right: 0; }
+.tipos button.activo { background: var(--tinta); color: #fff; }
+.paso-cab .acciones { margin-left: auto; display: flex; }
+.etq-sugerido { font-size: .72rem; font-weight: 700; background: #fde68a; color: #92400e; border-radius: 4px; padding: 1px 7px; }
+.opcion-dec { display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 8px; align-items: start; margin-bottom: 8px; }
+.opcion-dec .fin-txt { grid-column: 2 / 3; }
+.avisito { font-size: .8rem; color: var(--aviso); background: var(--aviso-fondo); border-radius: 6px; padding: 4px 8px; margin-top: 6px; }
+.relato { background: #f8fafc; border: 1px solid var(--linea); border-radius: 10px; padding: 14px 18px; font-size: .95rem; }
+.relato ol { margin: .4em 0 .6em; padding-left: 1.3em; }
+.relato li { margin-bottom: 3px; }
+.relato .dec { list-style: none; margin-left: -1.3em; color: #92400e; }
+.confirmado { color: var(--ok); font-weight: 700; }
+.area-ajena { background: var(--aviso-fondo); border-radius: 10px; padding: 14px 18px; margin: 16px 0; }
 
-  .dyn-row{display:block;background:#fbfcfe;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;}
-  .dyn-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-  .dyn-title{font-weight:800;color:var(--accent);}
-  .del{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;cursor:pointer;font-weight:700;padding:6px 12px;font-size:.85rem;}
-  .dyn-add{background:rgba(11,29,50,.05);color:var(--accent);border:2px dashed var(--accent);border-radius:12px;padding:12px;font-weight:700;cursor:pointer;width:100%;font-size:.95rem;font-family:inherit;transition:background .15s;}
-  .dyn-add:hover{background:rgba(231,196,125,.18);}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-  @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr;}}
+/* ---------- revisión ---------- */
+.revision li { margin-bottom: 4px; }
+.revision .ok { color: var(--ok); }
+.revision .falta { color: var(--aviso); }
+.acciones-envio { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+.nota-envio { background: #ecfdf3; border-radius: 10px; padding: 14px 18px; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--tinta); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: .9rem; z-index: 50; box-shadow: 0 6px 24px rgba(0,0,0,.2); }
 
-  .pasos{margin-top:10px;border-top:1px dashed var(--line);padding-top:12px;}
-  .paso{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;}
-  .paso-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-  .pnum{font-size:.72rem;font-weight:800;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;}
-  .del-p{background:none;border:none;color:#b91c1c;font-weight:700;cursor:pointer;font-size:.82rem;}
-  .paso-add{background:rgba(231,196,125,.12);color:#7c5f1e;border:1px solid rgba(231,196,125,.5);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:.85rem;font-family:inherit;}
-
-  .tipo-tag{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:6px;margin-left:8px;}
-  .tipo-mano{background:#fde2e1;color:#b42318;}
-  .tipo-eina{background:#e0f2fe;color:#075985;}
-  .tipo-enviar{background:#fef3c7;color:#92400e;}
-  .tipo-rebre{background:#dcfce7;color:#166534;}
-  .tipo-decisio{background:#ede9fe;color:#5b21b6;}
-
-  .actions{text-align:center;padding:24px 0 40px;}
-  .btn{display:inline-block;background:var(--accent);color:#fff;font-weight:800;text-decoration:none;padding:15px 34px;border-radius:10px;font-size:1.05rem;border:none;cursor:pointer;transition:transform .15s,box-shadow .15s;}
-  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.15);}
-
-  .msg{display:none;text-align:center;padding:18px;border-radius:12px;margin-bottom:20px;font-weight:600;}
-  .msg.ok{background:#fdf6e3;color:#14243a;border:1px solid #e8c987;}
-  .msg.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
-
-  #toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0b1d32;color:#fff;padding:14px 22px;border-radius:12px;font-weight:600;font-size:.95rem;box-shadow:0 12px 30px rgba(0,0,0,.25);z-index:200;max-width:90vw;text-align:center;}
-  #toast.err{background:#991b1b;}
-
-  #successScreen{display:none;padding:60px 0;text-align:center;}
-  .success-icon{width:76px;height:76px;border-radius:50%;background:#fdf6e3;border:2px solid #e8c987;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;}
-  .success-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:44px 30px;box-shadow:0 20px 50px rgba(15,23,42,.08);}
-  .success-card h2{font-size:1.7rem;font-weight:800;margin-bottom:12px;}
-  .success-card p{color:var(--muted);margin-bottom:8px;max-width:48ch;margin-left:auto;margin-right:auto;}
-
-  .field.missing .inp,.field.missing .inp-sel{border-color:#b91c1c;}
-
-  footer{text-align:center;padding:40px 20px;color:var(--muted);font-size:.82rem;border-top:1px solid var(--line);}
+@media (max-width: 860px) {
+  .marco { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
+  .lateral { position: static; }
+  .lateral ol { display: flex; overflow-x: auto; gap: 4px; }
+  .lateral li button { white-space: nowrap; padding: 6px 8px; }
+  .lateral li button .txt { display: none; }
+  .lateral li button.actual .txt { display: inline; }
+  .seccion { padding: 18px 16px; }
+  .opcion-dec { grid-template-columns: 1fr; }
+  .opcion-dec .fin-txt { grid-column: auto; }
+  .proceso-cuerpo { padding: 6px 12px 14px; }
+  .guardado { display: none; }
+}
+@media print {
+  .lateral, .navegacion, .boton, .icono, .rapidos, .tipos, .cabecera .guardado { display: none !important; }
+  .marco { display: block; padding: 0; }
+  .seccion { border: 0; padding: 0; }
+  details { display: block; }
+  details > * { display: block !important; }
+}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="container" style="position:relative;z-index:2;">
-    <span class="eyebrow">Diagnòstic de processos</span>
-    <h1>Explica'ns com funciona el teu negoci, pas a pas</h1>
-    <p class="subtitle">Amb aquestes respostes fem el mapa complet dels teus processos i t'expliquem on perds hores i diners. Com més detall posis, més bona serà l'anàlisi.</p>
-    <div class="premium">
-      <span class="tag">Metodologia BPMN</span>
-      <p><b>El mateix llenguatge que fan servir les grans consultores:</b> dibuixem els teus processos en BPMN (l'estàndard internacional) i hi marquem on hi ha feina manual, esperes i colls d'ampolla.</p>
-    </div>
-  </div>
-</header>
-
-<div class="progress-wrap">
-  <div class="progress-inner">
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="progress-label" id="progressLabel">0 / 0</div>
-  </div>
+<header class="cabecera"><div class="cabecera-in" id="cabecera"></div></header>
+<div class="marco">
+  <nav class="lateral" aria-label="Secciones"><ol id="indice"></ol><div class="progreso"><div id="barra"></div></div><p class="progreso-txt" id="progreso-txt"></p></nav>
+  <main class="contenido"><div id="seccion"></div>
+    <div class="navegacion"><button class="boton" id="anterior" type="button">← Anterior</button><button class="boton principal" id="siguiente" type="button">Següent →</button></div>
+  </main>
 </div>
-
-<div class="container">
-  <div id="formScreen">
-
-    <section>
-      <div class="area-head"><div class="area-num">A</div><div><h2>La teva empresa</h2><p class="area-note">Les dades bàsiques per saber qui ets i a què et dediques.</p></div></div>
-      <div class="card">
-        <div class="field"><label class="lbl">Nom de l'empresa <span class="req">*</span></label><input class="inp q" data-k="empresa_nombre" type="text"></div>
-        <div class="grid2">
-          <div class="field"><label class="lbl">Nom i cognoms de qui omple el qüestionari <span class="req">*</span></label><input class="inp q" data-k="contacto_nombre" type="text"></div>
-          <div class="field"><label class="lbl">Correu electrònic <span class="req">*</span></label><input class="inp q" data-k="contacto_email" type="email"></div>
-        </div>
-        <div class="field"><label class="lbl">A què et dediques (activitat) <span class="req">*</span></label><textarea class="inp q" data-k="empresa_actividad" rows="2" placeholder="Ex: instal·ladora de climatització per a vivendes i comerços a Barcelona"></textarea></div>
-        <div class="grid2">
-          <div class="field"><label class="lbl">Sector</label>
-            <select class="inp-sel q" data-k="empresa_sector">
-              <option value="">—</option>
-              <option value="industria">Indústria / fabricació</option>
-              <option value="serveis">Serveis</option>
-              <option value="comerc">Comerç / venda</option>
-              <option value="construccio">Construcció / instal·lacions</option>
-              <option value="altres">Altres</option>
-            </select>
-          </div>
-          <div class="field"><label class="lbl">Quants treballadors</label>
-            <select class="inp-sel q" data-k="empresa_empleados">
-              <option value="">—</option><option value="1-9">1-9</option><option value="10-49">10-49</option><option value="50-249">50-249</option><option value="250+">250 o més</option>
-            </select>
-          </div>
-        </div>
-        <div class="field"><label class="lbl">Objectius: què t'agradaria aconseguir amb la digitalització? (un per línia)</label><textarea class="inp q" data-k="empresa_objetivos" rows="3" placeholder="Ex: facturar tot el que fem&#10;perdre menys temps amb paper"></textarea></div>
-        <div class="field"><label class="lbl">Dolors principals: on perdeu més temps o diners? <span class="req">*</span></label><textarea class="inp q" data-k="empresa_dolores" rows="3" placeholder="Ex: copiem tot a mà del WhatsApp al programa, es perden dades..."></textarea></div>
-        <div class="field"><label class="lbl">Quina tasca repetitiva eliminaries demà si poguessis?</label><input class="inp q" data-k="empresa_tarea_eliminar" type="text"></div>
-      </div>
-    </section>
-
-    <section>
-      <div class="area-head"><div class="area-num">B</div><div><h2>La teva gent</h2><p class="area-note">Qui fa què. Un rol per línia (ex: gerent, administrativa, 2 tècnics...). Els farem servir als processos.</p></div></div>
-      <div class="card">
-        <div id="equipoDyn"></div>
-        <button type="button" class="dyn-add" onclick="addRol()">+ Afegeix un rol</button>
-      </div>
-    </section>
-
-    <section>
-      <div class="area-head"><div class="area-num">C</div><div><h2>Les eines que feu servir</h2><p class="area-note">Programes, correu, fulles de càlcul... una eina per línia. Les farem servir als passos dels processos.</p></div></div>
-      <div class="card">
-        <div class="field"><label class="lbl">Programa de gestió principal (ERP / CRM) <span class="req">*</span></label><input class="inp q" data-k="sistema_principal" type="text" placeholder="Ex: ClinicSoft, Zuccarello, Datisa, Sage, un CRM, o «cap / sole Excel»" list="dlSistemes"></div>
-        <div class="field"><label class="lbl">Com es connecta (quan ho sapigueu)</label><input class="inp q" data-k="sistema_conexion" type="text" placeholder="Ex: hi treballem l'administrativa i jo; no sé si té aplicació de mòbil"></div>
-        <div class="field"><label class="lbl">Facturació i tributació electrònica (Verifactu / contingència)</label><input class="inp q" data-k="sistema_facturacion" type="text" placeholder="Ex: facturem amb el programa; no sabem què és Verifactu"></div>
-        <div class="field"><label class="lbl">Com contacteu amb els clients (WhatsApp, correu, SMS...)</label><input class="inp q" data-k="sistema_contacto" type="text" placeholder="Ex: WhatsApp del mòbil de l'oficina i correu de la clínica"></div>
-        <div class="field"><label class="lbl">Explica breument la vostra xarxa/tant per tant (opcional)</label><input class="inp q" data-k="sistema_nota" type="text" placeholder="Ex: l'administrativa fa tot amb el mateix ordinador; el gerent veu els informes a Excel"></div>
-        <div id="toolsDyn"></div>
-        <button type="button" class="dyn-add" onclick="addTool()">+ Afegeix una eina</button>
-      </div>
-    </section>
-
-    <section>
-      <div class="area-head"><div class="area-num">D</div><div><h2>Els teus processos</h2><p class="area-note">El cor del diagnòstic. Un procés per targeta, amb els seus passos en ordre. <b>Posa-hi els passos tal com es fan avui</b>, encara que siguin a mà — cada pas a mà és un punt on es perden hores.</p></div></div>
-      <div class="card">
-        <p class="area-note" style="margin-bottom:14px;">Exemple: «Facturació» — l'administrativa agafa els parts de paper (a mà), els passa al programa (amb eina), el gerent la revisa, i s'envia per correu (enviar). Si el client ha de signar abans, és un pas «esperar de fora»; si el gerent decideix sí/no, és una «decisió».</p>
-        <div id="procsDyn"></div>
-        <button type="button" class="dyn-add" onclick="addProc()">+ Afegeix un procés</button>
-      </div>
-    </section>
-
-    <section>
-      <div class="area-head"><div class="area-num">E</div><div><h2>Seguretat, IA i altres</h2><p class="area-note">Opcional, però ajuda a veure el conjunt.</p></div></div>
-      <div class="card">
-        <div class="field"><label class="lbl">On teniu les dades dels clients?</label><input class="inp q" data-k="seguridad_datos" type="text" placeholder="Ex: tot al programa de gestió, algunes coses a Excel"></div>
-        <div class="field"><label class="lbl">Feu còpies de seguretat? Sabeu com?</label><input class="inp q" data-k="seguridad_backups" type="text"></div>
-        <div class="field"><label class="lbl">Fas servir alguna eina d'IA (ChatGPT o similar)? Per a què?</label><input class="inp q" data-k="ia_uso" type="text"></div>
-        <div class="field"><label class="lbl">Alguna cosa més que hauríem de saber?</label><textarea class="inp q" data-k="extra_comentarios" rows="3"></textarea></div>
-      </div>
-    </section>
-
-    <div class="actions">
-      <div id="sendMsg" class="msg"></div>
-      <button class="btn" onclick="enviar()">Envia el diagnòstic</button>
-      <p class="hint" style="margin-top:10px;">Trigues el que necessitis: les respostes es guarden soles al teu navegador mentre escreus.</p>
-    </div>
-  </div>
-
-  <div id="successScreen">
-    <div class="success-card">
-      <div class="success-icon">✓</div>
-      <h2>Rebut!</h2>
-      <p>Gràcies. Amb això ja podem preparar el mapa complet dels teus processos i l'informe d'on perds hores i diners.</p>
-      <p>Et contactarem molt aviat per revisar-ho amb tu, pas a pas.</p>
-      <p style="margin-top:18px;"><a class="btn" href="https://solutionpartner.github.io/auditoria/">Torna a l'auditoria</a></p>
-    </div>
-  </div>
-</div>
-
-<footer>
-  SolutionPartner.AI · AI Strategy &amp; Automation · Barcelona<br>
-  Les teves respostes arriben directament a SolutionPartner.AI. No les compartim amb tercers.
-</footer>
-
-<div id="toast"></div>
-
+<input type="file" id="cargar-archivo" accept=".json,application/json" class="oculto">
 <script>
-const WEB3FORMS_KEY = "7bf49537-789a-492c-ab78-d14a79d0fe6e";
-const LSKEY = "spai-diag-processos-v2";
-function el(id){ return document.getElementById(id); }
-function toast(msg, err){ const t = el("toast"); t.textContent = msg; t.className = err ? "err" : ""; t.style.display = "block"; clearTimeout(t._t); t._t = setTimeout(()=>{ t.style.display = "none"; }, 3400); }
-function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
-function saveLS(){ try{ localStorage.setItem(LSKEY, JSON.stringify(recollir())); }catch(e){} }
-function loadLS(){ try{ return JSON.parse(localStorage.getItem(LSKEY) || "null"); }catch(e){ return null; } }
-
-/* datalists dinàmics de rols i eines */
-function refreshDatalists(){
-  const rols = [...document.querySelectorAll('#equipoDyn [data-role="nombre"]')].map(i=>i.value.trim()).filter(Boolean);
-  const eines = [...document.querySelectorAll('#toolsDyn [data-tool="nombre"]')].map(i=>i.value.trim()).filter(Boolean);
-  let dlR = el("dlRols"); if(!dlR){ dlR = document.createElement("datalist"); dlR.id = "dlRols"; document.body.appendChild(dlR); }
-  let dlE = el("dlEines"); if(!dlE){ dlE = document.createElement("datalist"); dlE.id = "dlEines"; document.body.appendChild(dlE); }
-  dlR.innerHTML = rols.map(r=>`<option value="${esc(r)}">`).join("");
-  dlE.innerHTML = eines.map(e=>`<option value="${esc(e)}">`).join("");
-}
-
-/* ---------- A/B: rols ---------- */
-function addRol(rol, personas){
-  const div = document.createElement("div");
-  div.className = "dyn-row";
-  div.innerHTML = `<div class="dyn-head"><span class="dyn-title">Rol</span><button class="del" type="button">✕ Treu</button></div>
-  <div class="grid2">
-    <div class="field"><label class="lbl">Rol (ex: gerent, administrativa, tècnic) <span class="req">*</span></label><input class="inp" data-role="nombre" type="text" value="${esc(rol||"")}" list="dlRols"></div>
-    <div class="field"><label class="lbl">Persones que el fan</label><input class="inp" data-role="personas" type="number" min="1" max="500" value="${personas||1}"></div>
-  </div>`;
-  div.querySelector(".del").onclick = ()=>{ div.remove(); refreshDatalists(); updateProgress(); saveLS(); };
-  div.querySelectorAll("input").forEach(i=>{ i.addEventListener("input", ()=>{ refreshDatalists(); updateProgress(); saveLS(); }); });
-  el("equipoDyn").appendChild(div);
-  refreshDatalists(); updateProgress();
-}
-
-/* ---------- C: eines ---------- */
-function addTool(nombre, categoria, uso){
-  const div = document.createElement("div");
-  div.className = "dyn-row";
-  div.innerHTML = `<div class="dyn-head"><span class="dyn-title">Eina</span><button class="del" type="button">✕ Treu</button></div>
-  <div class="field"><label class="lbl">Eina (ex: programa de gestió, Excel, Gmail) <span class="req">*</span></label><input class="inp" data-tool="nombre" type="text" value="${esc(nombre||"")}" list="dlEines"></div>
-  <div class="grid2">
-    <div class="field"><label class="lbl">Tipus</label>
-      <select class="inp-sel" data-tool="categoria">
-        <option value="">—</option>
-        ${["programa de gestió (ERP)","CRM","comptabilitat","fulla de càlcul","correu","missatgeria (WhatsApp...)","botiga online","altres"].map(c=>`<option value="${c}" ${categoria===c?"selected":""}>${c}</option>`).join("")}
-      </select>
-    </div>
-    <div class="field"><label class="lbl">Per a què la feu servir</label><input class="inp" data-tool="uso" type="text" value="${esc(uso||"")}"></div>
-  </div>`;
-  div.querySelector(".del").onclick = ()=>{ div.remove(); refreshDatalists(); updateProgress(); saveLS(); };
-  div.querySelectorAll("input,select").forEach(i=>{ i.addEventListener("input", ()=>{ refreshDatalists(); updateProgress(); saveLS(); }); });
-  el("toolsDyn").appendChild(div);
-  refreshDatalists(); updateProgress();
-}
-
-/* ---------- D: processos ---------- */
-const TIPUS = {
-  mano:   {txt:"Tasca a mà",          cls:"tipo-mano"},
-  eina:   {txt:"Tasca amb eina",      cls:"tipo-eina"},
-  enviar: {txt:"Enviar alguna cosa",  cls:"tipo-enviar"},
-  rebre:  {txt:"Esperar de fora",     cls:"tipo-rebre"},
-  decidir:{txt:"Decisió (sí/no)",     cls:"tipo-decisio"}
-};
-
-function addProc(){
-  const div = document.createElement("div");
-  div.className = "dyn-row";
-  div.innerHTML = `
-  <div class="dyn-head"><span class="dyn-title">Procés</span><button class="del" type="button">✕ Treu el procés</button></div>
-  <div class="grid2">
-    <div class="field"><label class="lbl">Nom del procés <span class="req">*</span></label><input class="inp" data-proc="nombre" type="text" placeholder="Ex: Facturació de clients"></div>
-    <div class="field"><label class="lbl">Àrea</label>
-      <select class="inp-sel" data-proc="area">
-        <option value="">— (la deduirem)</option>
-        <option value="administracion">Administració</option>
-        <option value="comercial">Vendes / comercial</option>
-        <option value="fabricacion">Producció / operacions</option>
-        <option value="marketing">Màrqueting</option>
-        <option value="general">General</option>
-      </select>
-    </div>
-  </div>
-  <div class="grid2">
-    <div class="field"><label class="lbl">Qui és el responsable del procés sencer <span class="req">*</span></label><input class="inp" data-proc="propietario" type="text" list="dlRols" placeholder="Ex: administrativa"></div>
-    <div class="field"><label class="lbl">Aquest procés era per escrit abans?</label>
-      <select class="inp-sel" data-proc="escrito">
-        <option value="">—</option><option value="no">No, és al cap de qui ho fa</option><option value="parcial">Alguns trossos sí</option><option value="si">Sí, tot</option>
-      </select>
-    </div>
-  </div>
-  <div class="field"><label class="lbl">Què posa el procés en marxa? (disparador)</label><input class="inp" data-proc="disparador" type="text" placeholder="Ex: cada divendres, quan el client confirma, quan arriba una comanda..."></div>
-  <div class="grid3">
-    <div class="field"><label class="lbl">Cada quant passa (vegades)</label><input class="inp" data-proc="frec_veces" type="number" min="0" placeholder="Ex: 60"></div>
-    <div class="field"><label class="lbl">Període</label>
-      <select class="inp-sel" data-proc="frec_periodo">
-        <option value="">—</option><option value="dia">al dia</option><option value="setmana">a la setmana</option><option value="mes">al mes</option><option value="any">a l'any</option>
-      </select>
-    </div>
-    <div class="field"><label class="lbl">Durada de punta a punta</label>
-      <select class="inp-sel" data-proc="duracion">
-        <option value="">—</option><option value="minuts">Minuts</option><option value="hores">Hores</option><option value="dies">Dies</option><option value="setmanes">Setmanes</option>
-      </select>
-    </div>
-  </div>
-  <div class="field"><label class="lbl">Què passa un cop acabat?</label><input class="inp" data-proc="siguiente" type="text" placeholder="Ex: s'envia al client / passa a cobraments"></div>
-  <div class="pasos">
-    <div class="lbl" style="margin-bottom:8px;">Els passos, en ordre, tal com es fan avui:</div>
-    <div class="pasos-list"></div>
-    <button type="button" class="paso-add" style="margin-top:8px;">+ Afegeix un pas</button>
-  </div>`;
-  div.querySelector(".dyn-head .del").onclick = ()=>{ div.remove(); updateProgress(); saveLS(); };
-  const pasosList = div.querySelector(".pasos-list");
-  div.querySelector(".paso-add").onclick = ()=>{ addPaso(pasosList); };
-  div.querySelectorAll("input,select").forEach(i=>{ i.addEventListener("input", ()=>{ updateProgress(); saveLS(); }); });
-  el("procsDyn").appendChild(div);
-  addPaso(pasosList);
-  updateProgress();
-}
-
-function addPaso(pasosList){
-  const n = pasosList.querySelectorAll(".paso").length + 1;
-  const div = document.createElement("div");
-  div.className = "paso";
-  div.innerHTML = `
-  <div class="paso-head">
-    <span class="pnum">Pas ${n}<span class="tipo-tag" style="display:none;"></span></span>
-    <button class="del-p" type="button">✕ Treu el pas</button>
-  </div>
-  <div class="grid2">
-    <div class="field"><label class="lbl">Tipus de pas <span class="req">*</span></label>
-      <select class="inp-sel" data-paso="tipo">
-        <option value="">—</option>
-        <option value="mano">Tasca a mà</option>
-        <option value="eina">Tasca amb una eina</option>
-        <option value="enviar">Enviar alguna cosa</option>
-        <option value="rebre">Esperar alguna cosa de fora</option>
-        <option value="decidir">Decisió (sí/no)</option>
-      </select>
-    </div>
-    <div class="field"><label class="lbl">Què es fa <span class="req">*</span></label><input class="inp" data-paso="nombre" type="text" placeholder="Ex: passar les hores al programa"></div>
-  </div>
-  <div class="grid2">
-    <div class="field"><label class="lbl">Qui ho fa</label><input class="inp" data-paso="rol" type="text" list="dlRols" placeholder="Ex: administrativa"></div>
-    <div class="field" data-if="eina"><label class="lbl">Amb quina eina</label><input class="inp" data-paso="herramienta" type="text" list="dlEines" placeholder="Ex: programa de gestió"></div>
-    <div class="field" data-if="enviar" style="display:none;"><label class="lbl">A qui s'envia (fora de l'empresa)</label><input class="inp" data-paso="externo" type="text" placeholder="Ex: el client, el proveïdor..."></div>
-    <div class="field" data-if="rebre" style="display:none;"><label class="lbl">De qui s'espera</label><input class="inp" data-paso="externo" type="text" placeholder="Ex: signatura del client, resposta del proveïdor..."></div>
-  </div>
-  <div class="grid2">
-    <div class="field"><label class="lbl">Minuts (aprox.)</label><input class="inp" data-paso="min" type="number" min="0" placeholder="Ex: 10"></div>
-    <div class="field"><label class="lbl">Què hi fa mal o triga?</label><input class="inp" data-paso="dolor" type="text" placeholder="Ex: arriben en paper i s'han de reescriure"></div>
-  </div>
-  <div data-if="decidir" style="display:none;">
-    <div class="field"><label class="lbl">Què es decideix <span class="req" data-dec-req style="display:none;">*</span></label><input class="inp" data-paso="dec_pregunta" type="text" placeholder="Ex: el gerent accepta el pressupost?"></div>
-    <div class="grid2">
-      <div class="field"><label class="lbl">Si és SÍ → què passa</label><input class="inp" data-paso="dec_si" type="text" placeholder="Ex: passa a producció"></div>
-      <div class="field"><label class="lbl">Si és NO → què passa</label><input class="inp" data-paso="dec_no" type="text" placeholder="Ex: s'acaba el procés / es torna a demanar"></div>
-    </div>
-  </div>`;
-  div.querySelector(".del-p").onclick = ()=>{ div.remove(); renum(pasosList); updateProgress(); saveLS(); };
-  // mostrar/ocultar camps segons el tipus
-  const selTipo = div.querySelector('[data-paso="tipo"]');
-  const tag = div.querySelector(".tipo-tag");
-  function updTipo(){
-    const t = selTipo.value;
-    div.querySelectorAll("[data-if]").forEach(f=>{
-      const cond = f.getAttribute("data-if");
-      const show = cond.split(",").includes(t);
-      f.style.display = show ? "" : "none";
-    });
-    if(t && TIPUS[t]){ tag.style.display="inline-block"; tag.className = "tipo-tag " + TIPUS[t].cls; tag.textContent = TIPUS[t].txt; }
-    else tag.style.display="none";
-    updateProgress(); saveLS();
-  }
-  selTipo.addEventListener("change", updTipo);
-  div.querySelectorAll("input").forEach(i=>{ i.addEventListener("input", ()=>{ updateProgress(); saveLS(); }); });
-  pasosList.appendChild(div);
-  renum(pasosList);
-  updateProgress();
-}
-function renum(pasosList){ pasosList.querySelectorAll(".paso").forEach((p,i)=>{ p.querySelector(".pnum").childNodes[0].textContent = "Pas "+(i+1)+" "; }); }
-
-/* ---- progrés ---- */
-function reqFilled(){
-  let ok = 0, tot = 0;
-  const bump = r=>{ tot++; if(String(r.value||"").trim()) ok++; };
-  ["empresa_nombre","contacto_nombre","contacto_email","empresa_actividad","empresa_dolores"].forEach(k=>bump(document.querySelector(`[data-k="${k}"]`)));
-  document.querySelectorAll('#procsDyn [data-proc="nombre"],#procsDyn [data-proc="propietario"]').forEach(bump);
-  document.querySelectorAll('#procsDyn [data-paso="nombre"]').forEach(bump);
-  return [ok, tot];
-}
-function updateProgress(){
-  const [ok, tot] = reqFilled();
-  el("progressLabel").textContent = ok + " / " + tot;
-  el("progressFill").style.width = (tot? Math.round(ok/tot*100):0) + "%";
-}
-
-/* ---- recollir ---- */
-function val(q){ return String(q.value||"").trim(); }
-function recollir(){
-  const g = k=>{ const e = document.querySelector(`[data-k="${k}"]`); return e? val(e):""; };
-  const equipo = [];
-  el("equipoDyn").querySelectorAll(".dyn-row").forEach((r,i)=>{
-    const nombre = val(r.querySelector('[data-role="nombre"]')); if(!nombre) return;
-    equipo.push({ id:"r"+(i+1), rol:nombre, personas: parseInt(val(r.querySelector('[data-role="personas"]')))||1 });
-  });
-  const herramientas = [];
-  el("toolsDyn").querySelectorAll(".dyn-row").forEach((r,i)=>{
-    const nombre = val(r.querySelector('[data-tool="nombre"]')); if(!nombre) return;
-    herramientas.push({ id:"h"+(i+1), nombre, categoria: val(r.querySelector('[data-tool="categoria"]')), uso: val(r.querySelector('[data-tool="uso"]')) });
-  });
-  const procesos = [];
-  el("procsDyn").querySelectorAll(".dyn-row").forEach((r,i)=>{
-    const nombre = val(r.querySelector('[data-proc="nombre"]')); if(!nombre) return;
-    const pasos = [];
-    r.querySelectorAll(".paso").forEach((p,j)=>{
-      const nom = val(p.querySelector('[data-paso="nombre"]')); if(!nom) return;
-      const ps = { paso:j+1, id:"p"+(j+1), tipo: val(p.querySelector('[data-paso="tipo"]')), nombre:nom,
-        rol: val(p.querySelector('[data-paso="rol"]')), tiempo_min: parseInt(val(p.querySelector('[data-paso="min"]')))||0,
-        dolor: val(p.querySelector('[data-paso="dolor"]')) };
-      const herr = val(p.querySelector('[data-paso="herramienta"]')); if(herr) ps.herramienta = herr;
-      const ext = val(p.querySelector('[data-paso="externo"]')); if(ext) ps.externo = ext;
-      if(ps.tipo==="decidir"){
-        const dp = val(p.querySelector('[data-paso="dec_pregunta"]'));
-        const ds = val(p.querySelector('[data-paso="dec_si"]'));
-        const dn = val(p.querySelector('[data-paso="dec_no"]'));
-        ps.decision = { pregunta:dp, si:ds, no:dn };
-      }
-      pasos.push(ps);
-    });
-    procesos.push({
-      idx:i+1, nombre,
-      area: val(r.querySelector('[data-proc="area"]')),
-      propietario: val(r.querySelector('[data-proc="propietario"]')),
-      escrito: val(r.querySelector('[data-proc="escrito"]')),
-      disparador: val(r.querySelector('[data-proc="disparador"]')),
-      frecuencia: { veces: parseInt(val(r.querySelector('[data-proc="frec_veces"]')))||0, periodo: val(r.querySelector('[data-proc="frec_periodo"]')) },
-      duracion: val(r.querySelector('[data-proc="duracion"]')),
-      siguiente: val(r.querySelector('[data-proc="siguiente"]')),
-      pasos
-    });
-  });
-  return {
-    formato: "respuestas-unificadas/1",
-    version_formulario: "diagnostic-processos/2.0.0",
-    creado: window._creado || (window._creado = new Date().toISOString()),
-    guardado: new Date().toISOString(),
-    empresa: {
-      nombre: g("empresa_nombre"), actividad: g("empresa_actividad"),
-      pais: "España", sector: g("empresa_sector"), empleados: g("empresa_empleados"),
-      objetivos: g("empresa_objetivos") ? g("empresa_objetivos").split("\n").map(s=>s.trim()).filter(Boolean) : [],
-      dolores_principales: g("empresa_dolores"), tarea_a_eliminar: g("empresa_tarea_eliminar")
-    },
-    sistema: {
-      principal: g("sistema_principal"), conexion: g("sistema_conexion"),
-      facturacion: g("sistema_facturacion"), contacto: g("sistema_contacto"), nota: g("sistema_nota")
-    },
-    contacto: { nombre: g("contacto_nombre"), email: g("contacto_email") },
-    equipo, herramientas, procesos,
-    seguridad: { datos: g("seguridad_datos"), backups: g("seguridad_backups") },
-    ia: { uso: g("ia_uso") },
-    extra: { comentarios: g("extra_comentarios") }, comentarios: g("extra_comentarios")
-  };
-}
-
-/* ---- restaurar ---- */
-function restaurar(){
-  const d = loadLS(); if(!d) return false;
-  const set = (k,v)=>{ const e=document.querySelector(`[data-k="${k}"]`); if(e&&v) e.value=v; };
-  set("empresa_nombre", d.empresa?.nombre); set("empresa_actividad", d.empresa?.actividad);
-  set("empresa_sector", d.empresa?.sector); set("empresa_empleados", d.empresa?.empleados);
-  set("empresa_objetivos", (d.empresa?.objetivos||[]).join("\n"));
-  set("sistema_principal", d.sistema?.principal); set("sistema_conexion", d.sistema?.conexion);
-  set("sistema_facturacion", d.sistema?.facturacion); set("sistema_contacto", d.sistema?.contacto); set("sistema_nota", d.sistema?.nota);
-  set("empresa_dolores", d.empresa?.dolores_principales); set("empresa_tarea_eliminar", d.empresa?.tarea_a_eliminar);
-  set("contacto_nombre", d.contacto?.nombre); set("contacto_email", d.contacto?.email);
-  set("seguridad_datos", d.seguridad?.datos); set("seguridad_backups", d.seguridad?.backups);
-  set("ia_uso", d.ia?.uso); set("extra_comentarios", d.extra?.comentarios);
-  (d.equipo||[]).forEach(r=> addRol(r.rol, r.personas));
-  (d.herramientas||[]).forEach(h=> addTool(h.nombre, h.categoria, h.uso));
-  (d.procesos||[]).forEach(pr=>{
-    addProc();
-    const row = el("procsDyn").querySelectorAll(".dyn-row");
-    const r = row[row.length-1];
-    const q = (k,v)=>{ const e = r.querySelector(`[data-proc="${k}"]`); if(e&&v!=null&&v!=="") e.value=v; };
-    q("nombre",pr.nombre); q("area",pr.area); q("propietario",pr.propietario); q("escrito",pr.escrito);
-    q("disparador",pr.disparador); q("frec_veces",pr.frecuencia?.veces); q("frec_periodo",pr.frecuencia?.periodo);
-    q("duracion",pr.duracion); q("siguiente",pr.siguiente);
-    const pl = r.querySelector(".pasos-list");
-    (pr.pasos||[]).forEach(ps=>{
-      addPaso(pl);
-      const pd = pl.querySelectorAll(".paso")[pl.querySelectorAll(".paso").length-1];
-      const pq = (k,v)=>{ const e=pd.querySelector(`[data-paso="${k}"]`); if(e&&v!=null&&v!=="") e.value=v; };
-      pq("tipo",ps.tipo); pq("nombre",ps.nombre); pq("rol",ps.rol); pq("min",ps.tiempo_min);
-      pq("dolor",ps.dolor); pq("herramienta",ps.herramienta); pq("externo",ps.externo);
-      if(ps.decision){ pq("dec_pregunta",ps.decision.pregunta); pq("dec_si",ps.decision.si); pq("dec_no",ps.decision.no); }
-      // disparar update visual del tipus
-      pd.querySelector('[data-paso="tipo"]').dispatchEvent(new Event("change"));
-    });
-  });
-  updateProgress();
-  return true;
-}
-
-/* ---- enviament ---- */
-async function enviar(){
-  const d = recollir();
-  const falten = [];
-  ["empresa_nombre","contacto_nombre","contacto_email","empresa_actividad","empresa_dolores"].forEach(k=>{
-    const e = document.querySelector(`[data-k="${k}"]`);
-    if(e && !e.value.trim()){ e.closest(".field").classList.add("missing"); falten.push(k); }
-  });
-  if(!d.procesos.length){ toast("Afegeix almenys un procés amb els seus passos.", true); return; }
-  const conPasos = d.procesos.some(p=>p.pasos.length);
-  if(!conPasos){ toast("Posa els passos d'almenys un procés.", true); return; }
-  if(falten.length){ toast("Falten camps obligatoris.", true); return; }
-
-  const msg = el("sendMsg");
-  msg.style.display = "block"; msg.className = "msg"; msg.textContent = "Enviant…";
-  const fd = new FormData();
-  fd.append("access_key", WEB3FORMS_KEY);
-  fd.append("subject", "Diagnòstic de processos — " + (d.empresa.nombre || "sense nom"));
-  fd.append("from_name", "Web Diagnòstic Processos SPAI");
-  fd.append("formato", "diagnostic-processos");
-  fd.append("datos", JSON.stringify(d, null, 1));
-  try{
-    const r = await fetch("https://api.web3forms.com/submit", { method:"POST", body: fd });
-    const j = await r.json();
-    if(j.success){
-      localStorage.removeItem(LSKEY);
-      el("formScreen").style.display = "none";
-      el("successScreen").style.display = "block";
-      window.scrollTo({top:0, behavior:"smooth"});
-    } else throw new Error(j.message || "error");
-  }catch(e){
-    msg.className = "msg err"; msg.textContent = "No s'ha pogut enviar. Torna-ho a provar.";
-    toast("Error enviant: " + e.message, true);
-  }
-}
-
-document.addEventListener("input", e=>{ if(e.target.matches(".inp,.inp-sel")) saveLS(); });
-
-addRol(); addTool(); addProc();
-if(!restaurar()){ updateProgress(); }
-window.addEventListener("load", updateProgress);
+/* La marca del consultor y el catálogo de procesos típicos los escribe
+   herramientas/formulario.mjs al generar este archivo. */
+var WEB3FORMS_KEY = "7bf49537-789a-492c-ab78-d14a79d0fe6e"; /* mateixa clau que el formulari antic */
+var MARCA = /*__MARCA__*/{"nombre":"SolutionPartner.AI","eslogan":"Diagnòstic de processos","email":"contact@solutionpartner.ai","web":"https://solutionpartner.github.io/diagnostic-processos/","telefono":"","color_principal":"#0B1D32","color_acento":"#E7C47D","logo_data":"","webhook_formulario":"https://api.web3forms.com/submit","cliente":""};
+var CATALOGO = /*__CATALOGO__*/{"tipos_negocio":{"servicios":"Serveis professionals (consultoria, despatx, reformes, formació…)","ecommerce":"Botiga online","local":"Comerç o negoci local (botiga, hostaleria, taller…)","agencia":"Agència o estudi creatiu","clinica":"Clínica o centre de salut i benestar","otro":"Otro"},"procesos":[{"id":"mkt-plan","area":"marketing","para":["todos"],"nombre":"Planificació de màrqueting i continguts","alcance":"Des que toca planificar el mes fins que el calendari està aprovat.","disparador":"calendario","disparador_texto":"Cada mes","resultado":"Calendari aprovat","pasos":[{"que":"Revisar resultats del mes anterior","tipo":"tarea"},{"que":"Definir objectius i ofertes del mes","tipo":"tarea"},{"que":"Triar temes i canals","tipo":"tarea"},{"que":"Crear el calendari de publicacions","tipo":"tarea"},{"que":"Aprovar el calendari","tipo":"decision","pregunta":"S’aprova?","opciones":[{"texto":"Sí"},{"texto":"No, hi ha canvis","destino":"paso:3"}]},{"que":"Compartir el calendari amb l’equip","tipo":"tarea"}]},{"id":"mkt-contenido","area":"marketing","para":["todos"],"nombre":"Creació i publicació de contingut a xarxes","alcance":"Des que es tria un tema fins que està publicat i es responen els comentaris.","disparador":"calendario","disparador_texto":"Segons el calendari de publicacions","resultado":"Contingut publicat","pasos":[{"que":"Redactar el text o guió","tipo":"tarea"},{"que":"Dissenyar la imatge o gravar el vídeo","tipo":"tarea"},{"que":"Revisar el contingut","tipo":"decision","pregunta":"Està aprovat?","opciones":[{"texto":"Sí"},{"texto":"No, corregir","destino":"paso:1"}]},{"que":"Programar la publicació","tipo":"tarea"},{"que":"Respondre comentaris i missatges","tipo":"tarea"},{"que":"Apuntar els resultats","tipo":"tarea"}]},{"id":"mkt-anuncios","area":"marketing","para":["todos"],"nombre":"Campanyes de publicitat de pagament","alcance":"Des que es decideix anunciar alguna cosa fins que la campanya acaba i es revisen resultats.","disparador":"decision","resultado":"Campanya acabada","pasos":[{"que":"Definir objectiu i pressupost","tipo":"tarea"},{"que":"Preparar anuncis i textos","tipo":"tarea"},{"que":"Configurar la campanya","tipo":"tarea"},{"que":"Aprovar la inversió","tipo":"tarea"},{"que":"Llançar la campanya","tipo":"tarea"},{"que":"Esperar una setmana","tipo":"espera","espera":"una setmana"},{"que":"Revisar resultats i ajustar","tipo":"tarea"},{"que":"Redactar l’informe de la campanya","tipo":"tarea"}]},{"id":"mkt-leads","area":"marketing","para":["todos"],"nombre":"Captació de contactes interessats (leads)","alcance":"Des que algú deixa les seves dades o escriu fins que es passa a vendes.","disparador":"cliente","disparador_texto":"Algú deixa les seves dades o escriu","resultado":"Contacte lliurat a vendes","pasos":[{"que":"Rebre les dades de l’interessat","tipo":"comunicacion","sentido":"recibe","con":"cliente","mensaje":"Dades de contacte"},{"que":"Apuntar el contacte","tipo":"tarea"},{"que":"Enviar resposta o informació","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Informació"},{"que":"Comprovar si és un contacte vàlid","tipo":"decision","pregunta":"És un contacte vàlid?","opciones":[{"texto":"Sí"},{"texto":"No (spam o repetit)","destino":"fin","fin":"Contacte descartat"}]},{"que":"Passar el contacte a vendes","tipo":"tarea"}]},{"id":"mkt-email","area":"marketing","para":["todos"],"nombre":"Email màrqueting i newsletter","alcance":"Des que es decideix enviar un email fins que es revisen els seus resultats.","disparador":"calendario","disparador_texto":"Cada setmana o mes","resultado":"Email enviat","pasos":[{"que":"Decidir tema i a qui s’envia","tipo":"tarea"},{"que":"Redactar l’email","tipo":"tarea"},{"que":"Maquetar l’email","tipo":"tarea"},{"que":"Enviar una prova i revisar-la","tipo":"tarea"},{"que":"Programar l’enviament","tipo":"tarea"},{"que":"Revisar obertures i clics","tipo":"tarea"}]},{"id":"mkt-resenas","area":"marketing","para":["local","clinica","servicios","ecommerce"],"nombre":"Gestió de ressenyes i reputació","alcance":"Des que acaba un servei o arriba una ressenya fins que està responessuda.","disparador":"otro","disparador_texto":"Arriba una ressenya nova","resultado":"Ressenya resposta","pasos":[{"que":"Revisar les ressenyes noves","tipo":"tarea"},{"que":"Veure si és negativa","tipo":"decision","pregunta":"És negativa?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"paso:5"}]},{"que":"Avisar el responsable","tipo":"tarea"},{"que":"Contactar amb el client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Disculpa i proposta"},{"que":"Respondre la ressenya","tipo":"tarea"}]},{"id":"mkt-informe","area":"marketing","para":["todos"],"nombre":"Mesura i informe de màrqueting","alcance":"Des que toca revisar números fins que es presenten i es decideix què canviar.","disparador":"calendario","disparador_texto":"Cada mes","resultado":"Informe presentat","pasos":[{"que":"Treure les dades de cada plataforma","tipo":"tarea"},{"que":"Agrupar les dades en un full","tipo":"tarea"},{"que":"Calcular contactes, cost i vendes per canal","tipo":"tarea"},{"que":"Presentar els resultats a direcció","tipo":"tarea"},{"que":"Apuntar les decisions","tipo":"tarea"}]},{"id":"mkt-promo","area":"marketing","para":["local","ecommerce"],"nombre":"Llançament de promocions i ofertes","alcance":"Des que es pensa una oferta fins que es desactiva.","disparador":"decision","resultado":"Promoció tancada","pasos":[{"que":"Definir l’oferta i les seves condicions","tipo":"tarea"},{"que":"Calcular el marge","tipo":"tarea"},{"que":"Aprovar la promoció","tipo":"tarea"},{"que":"Preparar materials (cartell, web, codis)","tipo":"tarea"},{"que":"Informar l’equip","tipo":"tarea"},{"que":"Activar la promoció","tipo":"tarea"},{"que":"Desactivar la promoció","tipo":"tarea"}]},{"id":"ven-leads","area":"ventas","para":["todos"],"nombre":"Atenció de persones interessades (leads)","alcance":"Des que arriba un interessat fins que es programa una reunió o es descarta.","disparador":"cliente","disparador_texto":"Arriba un interessat","resultado":"Reunió programada","pasos":[{"que":"Apuntar el contacte","tipo":"tarea"},{"que":"Contactar amb l’interessat","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Primer contacte"},{"que":"Veure si respon","tipo":"decision","pregunta":"Respon?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Interessat sense resposta"}]},{"que":"Preguntar què necessita, pressupost i termini","tipo":"tarea"},{"que":"Veure si encaixa","tipo":"decision","pregunta":"Encaixa amb el que oferim?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Interessat descartat"}]},{"que":"Programar la reunió","tipo":"tarea"}]},{"id":"ven-reunion","area":"ventas","para":["servicios","agencia"],"nombre":"Reunió o visita comercial","alcance":"Des que hi ha una reunió programada fins que es decideix preparar proposta o no.","disparador":"proceso","resultado":"Proposta sol·licitada","pasos":[{"que":"Revisar la fitxa del client","tipo":"tarea"},{"que":"Confirmar la cita","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Confirmació de la cita"},{"que":"Fer la reunió o la visita","tipo":"tarea"},{"que":"Apuntar les notes","tipo":"tarea"},{"que":"Veure si encaixa l’oferta","tipo":"decision","pregunta":"Encaixa l’oferta?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Oportunitat descartada"}]},{"que":"Enviar resum i propers passos","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Resum de la reunió"}]},{"id":"ven-presupuesto","area":"ventas","para":["todos"],"nombre":"Elaboració i seguiment de pressupostos","alcance":"Des que algú demana preu fins que accepta, rebutja o deixa de contestar.","disparador":"cliente","disparador_texto":"El client demana pressupost","resultado":"Pressupost acceptat","pasos":[{"que":"Reunir el que necessita el client","tipo":"tarea"},{"que":"Calcular preu i marge","tipo":"tarea"},{"que":"Preparar el pressupost","tipo":"tarea"},{"que":"Enviar el pressupost","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Pressupost"},{"que":"Esperar resposta","tipo":"espera","espera":"uns dies"},{"que":"Trucar o escriure per fer seguiment","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Recordatori"},{"que":"Veure què respon","tipo":"decision","pregunta":"Què respon el client?","opciones":[{"texto":"Accepta"},{"texto":"Demana canvis","destino":"paso:2"},{"texto":"Rebutja","destino":"fin","fin":"Pressupost rebutjat"}]}]},{"id":"ven-cierre","area":"ventas","para":["servicios","agencia"],"nombre":"Tancament de la venda i alta del client","alcance":"Des que el client diu que sí fins que passa a l’equip que fa la feina.","disparador":"proceso","resultado":"Client donat d’alta","pasos":[{"que":"Preparar el contracte o la comanda","tipo":"tarea"},{"que":"Enviar el contracte per signar","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Contracte"},{"que":"Rebre el contracte signat","tipo":"comunicacion","sentido":"recibe","con":"cliente","mensaje":"Contracte signat"},{"que":"Emetre la factura d’avançament","tipo":"tarea"},{"que":"Comprovar el cobrament de l’avançament","tipo":"tarea"},{"que":"Donar d’alta el client","tipo":"tarea"},{"que":"Passar el client a l’equip","tipo":"tarea"}]},{"id":"ven-mostrador","area":"ventas","para":["local"],"nombre":"Venda a la botiga o al mostrador","alcance":"Des que entra un client fins que surt amb la seva compra o sense.","disparador":"cliente","disparador_texto":"Entra un client","resultado":"Venda cobrada","pasos":[{"que":"Atendre el client","tipo":"tarea"},{"que":"Assessorar sobre el producte","tipo":"tarea"},{"que":"Comprovar estoc i preu","tipo":"tarea"},{"que":"Veure si compra","tipo":"decision","pregunta":"Compra?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Client sense compra"}]},{"que":"Cobrar","tipo":"tarea"},{"que":"Donar el tiquet o la factura","tipo":"tarea"}]},{"id":"ven-pedido-web","area":"ventas","para":["ecommerce"],"nombre":"Comandes en línia","alcance":"Des que entra una comanda a la web fins que està confirmada i passa a preparació.","disparador":"cliente","disparador_texto":"Entra una comanda a la web","resultado":"Comanda confirmada","pasos":[{"que":"Comprovar el cobrament","tipo":"tarea"},{"que":"Revisar la comanda i la direcció","tipo":"tarea"},{"que":"Veure si la comanda és vàlida","tipo":"decision","pregunta":"¿Es válido?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Comanda cancel·lada"}]},{"que":"Confirmar la comanda al client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Confirmació de la comanda"},{"que":"Passar la comanda a preparació","tipo":"tarea"}]},{"id":"ven-embudo","area":"ventas","para":["servicios","agencia"],"nombre":"Revisió de l’embut i previsió de vendes","alcance":"La revisión periódica de oportunidades abiertas.","disparador":"calendario","disparador_texto":"Cada semana","resultado":"Previsió actualitzada","pasos":[{"que":"Actualitzar l’estat de cada oportunitat","tipo":"tarea"},{"que":"Revisar les oportunitats aturades","tipo":"tarea"},{"que":"Fer la reunió de vendes","tipo":"tarea"},{"que":"Estimar les vendes del mes","tipo":"tarea"},{"que":"Repartir accions","tipo":"tarea"}]},{"id":"ven-recompra","area":"ventas","para":["todos"],"nombre":"Renovacions i recompra","alcance":"Des que toca renovar o tornar a oferir alguna cosa a un client actual fins que renova o es perd.","disparador":"calendario","disparador_texto":"S’acosta la data de renovació","resultado":"Client renovat","pasos":[{"que":"Revisar l’historial del client","tipo":"tarea"},{"que":"Contactar amb el client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Proposta de renovació"},{"que":"Presentar l’oferta","tipo":"tarea"},{"que":"Ver si acepta","tipo":"decision","pregunta":"¿Acepta?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Client perdut"}]},{"que":"Registrar la renovació","tipo":"tarea"}]},{"id":"ful-onboarding","area":"fulfillment","para":["servicios","agencia"],"nombre":"Benvinguda i incorporació d’un client nou","alcance":"Des que vendes passa un client nou fins que tot està llest per començar la feina.","disparador":"proceso","resultado":"Client llest per començar","pasos":[{"que":"Enviar benvinguda i qüestionari","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Benvinguda i qüestionari"},{"que":"Rebre accessos i documentació","tipo":"comunicacion","sentido":"recibe","con":"cliente","mensaje":"Accessos i documentació"},{"que":"Veure si la informació està completa","tipo":"decision","pregunta":"Està completa?","opciones":[{"texto":"Sí"},{"texto":"No, falta alguna cosa","destino":"paso:2"}]},{"que":"Crear el projecte","tipo":"tarea"},{"que":"Fer la reunió d’arrencada","tipo":"tarea"},{"que":"Confirmar pla i calendari","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Pla i calendari"}]},{"id":"ful-entrega","area":"fulfillment","para":["servicios","agencia"],"nombre":"Execució i lliurament del servei o projecte","alcance":"Des que es comença a treballar fins que el client té el lliurament final.","disparador":"proceso","resultado":"Projecte lliurat","pasos":[{"que":"Planificar les tasques","tipo":"tarea"},{"que":"Assignar a les persones","tipo":"tarea"},{"que":"Produir la feina","tipo":"tarea"},{"que":"Revisar internament","tipo":"tarea"},{"que":"Enviar al client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Lliurament per revisar"},{"que":"Veure si ho aprova","tipo":"decision","pregunta":"Ho aprova el client?","opciones":[{"texto":"Sí"},{"texto":"No, demana canvis","destino":"paso:3"}]},{"que":"Lliurar la versió final","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Lliurament final"},{"que":"Avisar administració per facturar","tipo":"tarea"}]},{"id":"ful-citas","area":"fulfillment","para":["clinica","local"],"nombre":"Cites i atenció al client o la pacient","alcance":"Des que algú demana cita fins que se l’atén, es cobra i es programa el seguiment.","disparador":"cliente","disparador_texto":"Algú demana cita","resultado":"Servei realitzat","pasos":[{"que":"Consultar l’agenda","tipo":"tarea"},{"que":"Reservar la cita","tipo":"tarea"},{"que":"Enviar confirmació i recordatori","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Confirmació de la cita"},{"que":"Veure si confirma","tipo":"decision","pregunta":"Confirma la cita?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Cita cancel·lada"}]},{"que":"Rebre el client o la pacient","tipo":"tarea"},{"que":"Atendre la consulta o el servei","tipo":"tarea"},{"que":"Apuntar a la fitxa","tipo":"tarea"},{"que":"Cobrar el servei","tipo":"tarea"},{"que":"Programar el seguiment","tipo":"tarea"}]},{"id":"ful-envios","area":"fulfillment","para":["ecommerce"],"nombre":"Preparació i enviament de comandes","alcance":"Des que una comanda està confirmada fins que surt amb el transportista.","disparador":"proceso","resultado":"Comanda enviada","pasos":[{"que":"Imprimir el full de la comanda","tipo":"tarea"},{"que":"Recollir els productes","tipo":"tarea"},{"que":"Veure si hi ha estoc","tipo":"decision","pregunta":"Hi ha estoc?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Comanda endarrerida per falta d’estoc"}]},{"que":"Empaquetar la comanda","tipo":"tarea"},{"que":"Generar l’etiqueta d’enviament","tipo":"tarea"},{"que":"Lliurar al transportista","tipo":"tarea"},{"que":"Enviar el seguiment al client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Número de seguiment"},{"que":"Actualitzar l’estoc","tipo":"tarea"}]},{"id":"ful-devoluciones","area":"fulfillment","para":["ecommerce","local"],"nombre":"Devolucions i canvis","alcance":"Des que un client demana tornar o canviar alguna cosa fins que se li reemborsa o es rebutja.","disparador":"cliente","disparador_texto":"Un client demana una devolució","resultado":"Devolució reemborsada","pasos":[{"que":"Comprovar termini i estat","tipo":"tarea"},{"que":"Veure si s’accepta","tipo":"decision","pregunta":"¿Se acepta?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Devolució rebutjada"}]},{"que":"Enviar instruccions o etiqueta","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Instruccions de devolució"},{"que":"Rebre el producte","tipo":"comunicacion","sentido":"recibe","con":"cliente","mensaje":"Producte retornat"},{"que":"Revisar el producte","tipo":"tarea"},{"que":"Reemborsar o canviar","tipo":"tarea"},{"que":"Reposar l’estoc","tipo":"tarea"}]},{"id":"ful-incidencias","area":"fulfillment","para":["todos"],"nombre":"Atenció de dubtes i incidències","alcance":"Des que un client pregunta o té un problema fins que queda resolt.","disparador":"cliente","disparador_texto":"Arriba un dubte o un problema","resultado":"Incidència resolta","pasos":[{"que":"Apuntar la incidència","tipo":"tarea"},{"que":"Veure si es resol al moment","tipo":"decision","pregunta":"Es resol al moment?","opciones":[{"texto":"Sí","destino":"paso:5"},{"texto":"No"}]},{"que":"Passar a qui sap resoldre-ho","tipo":"tarea"},{"que":"Resoldre la incidència","tipo":"tarea"},{"que":"Respondre al client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Resposta"},{"que":"Tancar la incidència i apuntar la causa","tipo":"tarea"}]},{"id":"ful-quejas","area":"fulfillment","para":["local","clinica","ecommerce"],"nombre":"Queixes i reclamacions","alcance":"Des que arriba una queixa formal fins que es respon i es tanca.","disparador":"cliente","disparador_texto":"Arriba una queixa","resultado":"Queixa resolta","pasos":[{"que":"Registrar la reclamació","tipo":"tarea"},{"que":"Analitzar la causa","tipo":"tarea"},{"que":"Proposar una solució","tipo":"tarea"},{"que":"Respondre al client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Resposta a la reclamació"},{"que":"Revisar que s’ha solucionat","tipo":"tarea"}]},{"id":"ful-stock","area":"fulfillment","para":["ecommerce","local"],"nombre":"Control d’estoc i reposició","alcance":"Des que es revisa l’estoc fins que la mercaderia està reposada.","disparador":"calendario","disparador_texto":"Cada semana","resultado":"Estoc reposat","pasos":[{"que":"Revisar nivells d’estoc","tipo":"tarea"},{"que":"Veure si alguna cosa està per sota del mínim","tipo":"decision","pregunta":"Alguna cosa per sota del mínim?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"fin","fin":"Estoc correcte"}]},{"que":"Demanar la mercaderia al proveïdor","tipo":"comunicacion","sentido":"envia","con":"proveedor","mensaje":"Comanda"},{"que":"Rebre la mercaderia","tipo":"comunicacion","sentido":"recibe","con":"proveedor","mensaje":"Mercaderia i albarà"},{"que":"Revisar la mercaderia","tipo":"tarea"},{"que":"Donar d’alta l’entrada","tipo":"tarea"}]},{"id":"adm-facturacion","area":"administracion","para":["todos"],"nombre":"Facturació a clients","alcance":"Des que toca facturar fins que la factura està enviada i arxivada.","disparador":"otro","disparador_texto":"S’acaba una feina o arriba final de mes","resultado":"Factura enviada","pasos":[{"que":"Comprovar dades fiscals i condicions","tipo":"tarea"},{"que":"Emetre la factura","tipo":"tarea"},{"que":"Enviar la factura al client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Factura"},{"que":"Apuntar la factura","tipo":"tarea"},{"que":"Arxivar la factura","tipo":"tarea"}]},{"id":"adm-cobros","area":"administracion","para":["todos"],"nombre":"Cobrament i reclamació d’impagats","alcance":"Des que venç una factura fins que es cobra o es dóna per perduda.","disparador":"calendario","disparador_texto":"Cada setmana es revisen venciments","resultado":"Factura cobrada","pasos":[{"que":"Revisar les factures vençudes","tipo":"tarea"},{"que":"Comprovar els cobraments al banc","tipo":"tarea"},{"que":"Veure si està cobrada","tipo":"decision","pregunta":"Està cobrada?","opciones":[{"texto":"Sí","destino":"fin","fin":"Factura cobrada"},{"texto":"No"}]},{"que":"Enviar un recordatori","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Recordatori de pagament"},{"que":"Esperar uns dies","tipo":"espera","espera":"uns dies"},{"que":"Trucar al client","tipo":"comunicacion","sentido":"envia","con":"cliente","mensaje":"Reclamació de pagament"},{"que":"Veure si paga","tipo":"decision","pregunta":"Paga?","opciones":[{"texto":"Sí","destino":"fin","fin":"Factura cobrada"},{"texto":"No","destino":"fin","fin":"Deute en reclamació"}]}]},{"id":"adm-compras","area":"administracion","para":["todos"],"nombre":"Compres i pagament a proveïdors","alcance":"Des que cal comprar alguna cosa fins que la factura del proveïdor està pagada.","disparador":"decision","resultado":"Factura del proveïdor pagada","pasos":[{"que":"Demanar pressupostos","tipo":"comunicacion","sentido":"envia","con":"proveedor","mensaje":"Petició de pressupost"},{"que":"Aprovar la compra","tipo":"tarea"},{"que":"Enviar la comanda al proveïdor","tipo":"comunicacion","sentido":"envia","con":"proveedor","mensaje":"Comanda"},{"que":"Rebre la mercaderia o el servei","tipo":"comunicacion","sentido":"recibe","con":"proveedor","mensaje":"Mercaderia o servei"},{"que":"Rebre la factura del proveïdor","tipo":"comunicacion","sentido":"recibe","con":"proveedor","mensaje":"Factura del proveïdor"},{"que":"Comprovar comanda, albarà i factura","tipo":"tarea"},{"que":"Pagar la factura","tipo":"tarea"},{"que":"Arxivar la documentació","tipo":"tarea"}]},{"id":"adm-gastos","area":"administracion","para":["todos"],"nombre":"Despeses i tiquets","alcance":"Des que algú paga una despesa fins que està comptabilitzada (i reemborsada si toca).","disparador":"otro","disparador_texto":"Algú paga una despesa de l’empresa","resultado":"Despesa comptabilitzada","pasos":[{"que":"Fotografiar o guardar el tiquet","tipo":"tarea"},{"que":"Enviar el tiquet a administració","tipo":"tarea"},{"que":"Classificar la despesa","tipo":"tarea"},{"que":"Aprovar la despesa","tipo":"tarea"},{"que":"Reemborsar a la persona","tipo":"tarea"},{"que":"Comptabilitzar la despesa","tipo":"tarea"}]},{"id":"adm-cierre","area":"administracion","para":["todos"],"nombre":"Tancament del mes i impostos","alcance":"Des que acaba el mes o el trimestre fins que els impostos estan presentats.","disparador":"calendario","disparador_texto":"Final de mes o de trimestre","resultado":"Període tancat","pasos":[{"que":"Reunir factures emeses i rebudes","tipo":"tarea"},{"que":"Quadrar el banc","tipo":"tarea"},{"que":"Enviar la documentació a la gestoria","tipo":"comunicacion","sentido":"envia","con":"gestoria","mensaje":"Documentació del període"},{"que":"Rebre l’esborrany d’impostos","tipo":"comunicacion","sentido":"recibe","con":"gestoria","mensaje":"Esborrany d’impostos"},{"que":"Revisar i aprovar l’esborrany","tipo":"tarea"},{"que":"Pagar els impostos","tipo":"tarea"}]},{"id":"adm-nominas","area":"administracion","para":["todos"],"nombre":"Nòmines","alcance":"Des que es recullen les incidències del mes fins que les nòmines estan pagades.","disparador":"calendario","disparador_texto":"Cada mes","resultado":"Nòmines pagades","pasos":[{"que":"Reunir alts, baixes, vacances i hores","tipo":"tarea"},{"que":"Enviar les incidències a la gestoria","tipo":"comunicacion","sentido":"envia","con":"gestoria","mensaje":"Incidències del mes"},{"que":"Rebre l’esborrany de nòmines","tipo":"comunicacion","sentido":"recibe","con":"gestoria","mensaje":"Esborrany de nòmines"},{"que":"Revisar les nòmines","tipo":"decision","pregunta":"Estan bé?","opciones":[{"texto":"Sí"},{"texto":"No, hi ha errors","destino":"paso:2"}]},{"que":"Pagar les nòmines","tipo":"tarea"},{"que":"Arxivar les nòmines","tipo":"tarea"}]},{"id":"adm-seleccion","area":"administracion","para":["todos"],"nombre":"Selecció i contractació de personal","alcance":"Des que cal una persona fins que està contractada.","disparador":"decision","resultado":"Persona contractada","pasos":[{"que":"Definir el lloc","tipo":"tarea"},{"que":"Publicar l’oferta","tipo":"tarea"},{"que":"Filtrar candidatures","tipo":"tarea"},{"que":"Entrevistar candidats","tipo":"tarea"},{"que":"Triar candidat","tipo":"tarea"},{"que":"Veure si accepta l’oferta","tipo":"decision","pregunta":"¿Acepta?","opciones":[{"texto":"Sí"},{"texto":"No","destino":"paso:5"}]},{"que":"Signar el contracte i donar d’alta","tipo":"tarea"}]},{"id":"adm-incorporacion","area":"administracion","para":["todos"],"nombre":"Incorporació de persones a l’equip","alcance":"Des que algú signa fins que acaba el seu període de prova.","disparador":"proceso","resultado":"Incorporació completada","pasos":[{"que":"Preparar accessos i equip","tipo":"tarea"},{"que":"Donar la benvinguda","tipo":"tarea"},{"que":"Explicar com es treballa","tipo":"tarea"},{"que":"Assignar una persona de referència","tipo":"tarea"},{"que":"Esperar 30 dies","tipo":"espera","espera":"30 dies"},{"que":"Revisar com va","tipo":"tarea"}]}]};
+var AJUSTES = /*__AJUSTES__*/{"textos":{"titulo":"Explica’ns com treballeu","introduccion":"Amb aquest qüestionari dibuixarem com funciona avui el teu negoci en {areas}. Amb les teves respostes prepararem el mapa de processos i un manual pas a pas de cada un.","tiempo":"Entre 30 i 45 minuts en total. No cal fer-lo d’una vegada: es guarda sol en aquest navegador i pots tornar-hi quan vulguis.","nota_final":""},"areas":{"marketing":{"activa":true,"nombre":"Màrqueting","descripcion":"Com us doneu a conèixer i com hi arriben els interessats: xarxes, anuncis, contingut, web, ressenyes."},"ventas":{"activa":true,"nombre":"Vendes","descripcion":"Des que algú s’hi interessa fins que compra: contactes, reunions, pressupostos, seguiment i tancament."},"fulfillment":{"activa":true,"nombre":"Fulfillment","descripcion":"L’entrega i el servei: com feu i lliureu el que veneu, i l’atenció posterior (comandes, cites, incidències)."},"administracion":{"activa":true,"nombre":"Administració","descripcion":"El que sosté el negoci per darrere: factures, cobraments, pagaments, impostos, nòmines i personal."}},"secciones":{"empresa_para_afinar":true,"pasos_tipicos":true,"detalle_de_cada_paso":true,"proceso_para_terminar":true,"seguridad":true,"ia":true},"preguntas_extra":[]};
 </script>
-<datalist id="dlSistemes"><option label="ERP/CRM" value="ClinicSoft"><option label="ERP" value="Zuccarello"><option label="ERP" value="Datisa"><option label="ERP/CRM" value="Sage"><option label="ERP" value="EOI"><option label="ERP" value="A3"><option label="ERP" value="Holded"><option label="CRM" value="Pipedrive"><option label="CRM" value="HubSpot"><option label="CRM" value="Salesforce"><option label="ERP" value="Oddo"><option label="" value="Només Excel/paper"><option label="" value="Encara no ho sé"></datalist>
+<script>
+(function () {
+  'use strict';
+  var VERSION = '1.0';
+  /* Lo que el consultor ha personalizado (formulario/personalizacion.json). */
+  var AJ = AJUSTES || {};
+  var AJ_TEXTOS = AJ.textos || {};
+  var AJ_SECC = AJ.secciones || {};
+  var EXTRAS = AJ.preguntas_extra || [];
+  function activo(clave) { return AJ_SECC[clave] !== false; }
+  var AREAS = [
+    { id: 'marketing', nombre: 'Marketing', texto: 'Cómo os da a conocer el negocio y cómo llegan los interesados: redes, anuncios, contenido, web, reseñas.' },
+    { id: 'ventas', nombre: 'Ventas', texto: 'Desde que alguien se interesa hasta que compra: contactos, reuniones, presupuestos, seguimiento y cierre.' },
+    { id: 'fulfillment', nombre: 'Fulfillment', texto: 'La entrega y el servicio: cómo hacéis y entregáis lo que vendéis, y la atención después (pedidos, citas, incidencias).' },
+    { id: 'administracion', nombre: 'Administración', texto: 'Lo que sostiene el negocio por detrás: facturas, cobros, pagos, impuestos, nóminas y personal.' }
+  ].map(function (a) {
+    var p = (AJ.areas || {})[a.id] || {};
+    return { id: a.id, nombre: p.nombre || a.nombre, texto: p.descripcion || a.texto, activa: p.activa !== false };
+  }).filter(function (a) { return a.activa; });
+  var BLOQUE_DATOS = activo('seguridad') && activo('ia') ? 'Dades, seguretat i IA' : activo('seguridad') ? 'Dades i seguretat' : activo('ia') ? 'Intel\u2019lig\u00e8ncia artificial' : '';
+  var SECCIONES = [
+    { id: 'inicio', nombre: 'Comença' },
+    { id: 'empresa', nombre: 'La teva empresa' },
+    { id: 'equipo', nombre: 'Qui treballa' },
+    { id: 'herramientas', nombre: 'Eines' }
+  ].concat(AREAS.map(function (a) { return { id: a.id, nombre: a.nombre, area: true }; }))
+    .concat(BLOQUE_DATOS ? [{ id: 'seguridad', nombre: BLOQUE_DATOS }] : [])
+    .concat([{ id: 'enviar', nombre: 'Revisar i enviar' }]);
+
+  /* ---------- opciones ---------- */
+  var NOSE = ['nose', 'No sé'];
+  var O = {
+    pais: [['España', 'España'], ['México', 'México'], ['Colombia', 'Colombia'], ['Argentina', 'Argentina'], ['Chile', 'Chile'], ['Perú', 'Perú'], ['Ecuador', 'Ecuador'], ['Uruguay', 'Uruguay'], ['Altre', 'Altre']],
+    sector: [['comercio', 'Comercio o tienda online'], ['hosteleria', 'Hostelería o turismo'], ['servicios_prof', 'Servicios profesionales'], ['salud', 'Salud, clínica o bienestar'], ['educacion', 'Educación o formación'], ['industria', 'Industria o fabricación'], ['construccion', 'Construcción, reformas o inmobiliaria'], ['transporte', 'Transporte o logística'], ['tecnologia', 'Tecnología'], ['agencia', 'Agencia, marketing o diseño'], ['finanzas', 'Finanzas o seguros'], ['alimentacion', 'Alimentación'], ['otro', 'Altre']],
+    tipo_clientes: [['empresas', 'Empreses'], ['particulares', 'Particulars'], ['administracion', 'Administració pública'], ['marketplaces', 'A través de marketplaces (Amazon…)']],
+    empleados: [['1', 'Només jo'], ['2-9', '2 a 9'], ['10-49', '10 a 49'], ['50-249', '50 a 249'], ['250+', '250 o més']],
+    facturacion: [['<0,5', 'Menos de 500.000 €'], ['0,5-2', 'De 0,5 a 2 millones'], ['2-8', 'De 2 a 8 millones'], ['8-10', 'De 8 a 10 millones'], ['10-50', 'De 10 a 50 millones'], ['>50', 'Más de 50 millones'], ['nodecir', 'Prefiero no decirlo']],
+    modalidad: [['presencial', 'Presencial'], ['mixto', 'Mixt'], ['remoto', 'Gairebé tot en remot']],
+    canales: [['recomendacion', 'Recomanació / boca-orella'], ['redes', 'Xarxes socials'], ['anuncios', 'Anuncis de pagament'], ['web_seo', 'Web i Google'], ['google_maps', 'Fitxa de Google Maps'], ['email', 'Email'], ['eventos', 'Fires i esdeveniments'], ['comerciales', 'Comercials que surten a buscar'], ['marketplaces', 'Marketplaces'], ['puerta', 'Passen per la botiga o el local'], ['otro', 'Altre']],
+    clientes_mes: [['0-4', 'Menos de 5'], ['5-10', '5 a 10'], ['11-30', '11 a 30'], ['31-100', '31 a 100'], ['>100', 'Más de 100'], NOSE],
+    objetivos: [['Vendre més', 'Vendre més'], ['Reduir costos', 'Reduir costos'], ['Liberar tiempo del dueño', 'Alliberar el meu temps'], ['Atender mejor', 'Atendre millor el client'], ['Menos errores', 'Tenir menys errors'], ['Créixer sense contractar', 'Créixer sense contractar'], ['Cumplir normativa', 'Complir la normativa'], ['Preparar venta o relevo', 'Preparar una venda o un relleu']],
+    presupuesto: [['<3k', 'Menos de 3.000 €'], ['3-10k', '3.000 - 10.000 €'], ['10-30k', '10.000 - 30.000 €'], ['30-100k', '30.000 - 100.000 €'], ['>100k', 'Más de 100.000 €'], ['depende', 'Depende de lo que devuelva']],
+    gasto_soft: [['<100', 'Menos de 100 €'], ['100-500', '100 - 500 €'], ['500-2000', '500 - 2.000 €'], ['2000-5000', '2.000 - 5.000 €'], ['>5000', 'Más de 5.000 €'], NOSE],
+    horas_cambio: [['<2', 'Menos de 2'], ['2-5', '2 a 5'], ['5-10', '5 a 10'], ['>10', 'Más de 10']],
+    informatica: [['nadie', 'Nadie en concreto'], ['dueno', 'Yo mismo/a'], ['empleado', 'Un empleado a ratos'], ['interno', 'Un informático de la empresa'], ['externo', 'Una empresa externa'], ['conocido', 'Un conocido o freelance']],
+    requisitos: [['no', 'No'], ['cuestionarios', 'Qüestionaris de seguretat'], ['iso27001', 'ISO 27001'], ['ens', 'ENS'], ['nis2', 'NIS2'], ['dpa', 'Contracte de protecció de dades'], ['seguro', 'Assegurança de ciberriscos']],
+    verifactu: [['si', 'Sí'], ['no', 'No'], ['gestoria', 'Factura la gestoria'], NOSE],
+    area_rol: [['direccion', 'Dirección'], ['marketing', 'Marketing'], ['ventas', 'Ventas'], ['fulfillment', 'Fulfillment (entrega y servicio)'], ['administracion', 'Administración'], ['varias', 'Varias']],
+    vinculo: [['dueno', 'Dueño o socio'], ['empleado', 'Empleado'], ['autonomo', 'Autónomo que trabaja con nosotros']],
+    coste_hora: [['<15', 'Menos de 15 €'], ['15-25', '15 - 25 €'], ['25-35', '25 - 35 €'], ['35-50', '35 - 50 €'], ['50-80', '50 - 80 €'], ['>80', 'Más de 80 €'], NOSE],
+    jornada: [['completa', 'Completa'], ['parcial', 'Parcial'], ['horas', 'Por horas o proyecto']],
+    categoria: [['correo', 'Correo y ofimática'], ['comunicacion', 'Mensajería (WhatsApp…)'], ['crm', 'CRM (clientes y ventas)'], ['erp', 'Programa de gestión / ERP'], ['facturacion', 'Facturación y contabilidad'], ['banca', 'Banca online'], ['tienda', 'Tienda online o marketplace'], ['web', 'Web'], ['email_mkt', 'Email marketing'], ['redes', 'Redes sociales y anuncios'], ['diseno', 'Diseño y vídeo'], ['agenda', 'Agenda y reservas'], ['tareas', 'Tareas y proyectos'], ['archivos', 'Archivos en la nube'], ['chat_interno', 'Chat interno'], ['rrhh', 'Personal, nóminas, fichaje'], ['firma', 'Firma electrónica'], ['logistica', 'Envíos y almacén'], ['pagos', 'Cobros con tarjeta / TPV'], ['informes', 'Informes y cuadros de mando'], ['hoja', 'Hoja de cálculo clave'], ['ia', 'Inteligencia artificial'], ['automatizacion', 'Automatización'], ['sector', 'Programa del sector'], ['otra', 'Otra']],
+    plan: [['gratuito', 'Gratuito'], ['basico', 'De pago, básico'], ['pago', 'De pago, profesional'], ['enterprise', 'Empresa / enterprise'], ['licencia', 'Licencia comprada o instalado'], NOSE],
+    titular: [['empresa', 'De la empresa'], ['personal', 'Personal de alguien del equipo'], ['agencia', 'De una agencia o proveedor'], NOSE],
+    dos_pasos_h: [['si', 'Sí, a todos'], ['algunos', 'A algunos'], ['no', 'No'], NOSE],
+    criticidad: [['paramos', 'Nos paramos'], ['complica', 'Nos complica mucho'], ['poco', 'Lo notamos poco']],
+    datos_herr: [['contactos', 'Contactos de clientes'], ['empleados', 'Datos de empleados'], ['ventas', 'Pedidos o ventas'], ['facturas', 'Facturas o contabilidad'], ['bancarios', 'Datos bancarios o tarjetas'], ['sensibles', 'Salud u otros datos sensibles'], ['documentos', 'Documentos y contratos'], ['stock', 'Productos o stock'], ['nada', 'Nada personal']],
+    exportar: [['si', 'Sí, todo'], ['parte', 'Solo una parte'], ['no', 'No'], NOSE],
+    funciones_ia: [['usamos', 'Sí, y las usamos'], ['sin_usar', 'Sí, pero no las usamos'], ['no', 'No'], NOSE],
+    satisfaccion: [['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']],
+    disparador: [['cliente', 'Lo pide un cliente'], ['externo', 'Llega algo de un proveedor, la gestoría u otro de fuera'], ['calendario', 'Una fecha o cada cierto tiempo'], ['sistema', 'Salta un aviso en un programa'], ['decision', 'Alguien decide empezar'], ['proceso', 'Termina otro proceso'], ['otro', 'Otra cosa']],
+    periodo: [['dia', 'al día'], ['semana', 'a la semana'], ['mes', 'al mes'], ['trimestre', 'al trimestre'], ['ano', 'al año'], ['irregular', 'sin regularidad']],
+    duracion: [['Minutos', 'Minutos'], ['Horas', 'Horas'], ['1-2 días', '1-2 días'], ['3-7 días', '3-7 días'], ['1-3 semanas', '1-3 semanas'], ['Más de un mes', 'Más de un mes'], ['No sé', 'No sé']],
+    excepciones: [['casi_nunca', 'Casi nunca'], ['uno_de_diez', '1 de cada 10'], ['un_cuarto', '1 de cada 4'], ['mitad', 'La mitad o más'], NOSE],
+    documentado: [['no', 'No, está en la cabeza de quien lo hace'], ['parcial', 'En parte o desactualizado'], ['si', 'Sí, y está al día']],
+    dependencia: [['igual', 'Sigue igual'], ['lento', 'Va más lento'], ['para', 'Se para'], NOSE],
+    se_mide: [['datos', 'Sí, con datos'], ['ojo', 'A ojo'], ['no', 'No']],
+    cambios: [['no', 'No'], ['menores', 'Cambios pequeños'], ['grande', 'Un cambio grande (programa nuevo, reorganización, ley)'], NOSE],
+    impacto: [['Ingresos', 'Ingresos'], ['Costes', 'Costes'], ['Experiencia del cliente', 'Experiencia del cliente'], ['Cumplimiento legal', 'Cumplimiento legal'], ['Tiempo del dueño', 'Tiempo del dueño'], ['Clima del equipo', 'Clima del equipo']],
+    prioridad: [['1', '1 · poco'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5 · mucho']],
+    datos_proc: [['contacto', 'Contacto de personas'], ['bancarios', 'Bancarios o de pago'], ['salud', 'Salud'], ['menores', 'De menores'], ['empleados', 'De empleados'], ['ninguno', 'Ninguno especial']],
+    tiempo: [['lt2', 'menos de 2 min'], ['2-5', '2-5 min'], ['5-15', '5-15 min'], ['15-30', '15-30 min'], ['30-60', '30-60 min'], ['1-2h', '1-2 h'], ['gt2h', 'más de 2 h'], NOSE],
+    naturaleza: [['buscar', 'Buscar o reunir información'], ['copiar', 'Copiar o pasar datos'], ['calcular', 'Calcular o comprobar'], ['redactar', 'Redactar o crear contenido'], ['revisar', 'Revisar o aprobar'], ['hablar', 'Hablar con cliente o proveedor'], ['fisico', 'Trabajo físico']],
+    formato: [['programa', 'En un programa'], ['excel', 'Excel u hoja'], ['email', 'Email con texto libre'], ['pdf', 'PDF o documento'], ['papel', 'Papel o escaneado'], ['voz', 'Llamada o audio'], ['whatsapp', 'WhatsApp o chat'], ['foto', 'Foto']],
+    errores: [['casi_nunca', 'Casi nunca'], ['a_veces', 'A veces'], ['a_menudo', 'A menudo'], NOSE],
+    gravedad: [['corrige', 'Se corrige sin más'], ['molesta', 'Molesta al cliente'], ['dinero', 'Se pierde dinero o hay un problema legal']],
+    datos_paso: [['no', 'No'], ['contacto', 'Contacto básico'], ['bancarios', 'Bancarios o de pago'], ['sensibles', 'Sensibles (salud…) o de menores']],
+    accion: [['consulta', 'Solo se consulta'], ['guarda', 'Se guarda o actualiza un dato'], ['envia', 'Se envía algo fuera'], ['publica', 'Se publica algo'], ['dinero', 'Se mueve dinero'], ['stock', 'Cambia un pedido o el stock']],
+    s_dos_pasos: [['todos', 'A tots'], ['correo_banco', 'Al correu i al banc, no a la resta'], ['algunos', 'Només a alguns'], ['no', 'No'], NOSE],
+    s_compartidas: [['no', 'No, cadascú el seu'], ['algunos', 'Sí, a alguns'], ['mayoria', 'Sí, a la majoria'], NOSE],
+    s_contrasenas: [['gestor', 'Gestor de contrasenyes de l’empresa'], ['navegador', 'Les recorda el navegador'], ['papel', 'Excel, notes o paper'], ['memoria', 'Cadascú les memoritza'], NOSE],
+    s_copias: [['probadas', 'Sí, automàtiques, guardades a part i alguna vegada hem recuperat alguna cosa'], ['sin_probar', 'Sí, però mai hem provat de recuperar'], ['nube', 'Només el que guarda el núvol (Drive, OneDrive…)'], ['no', 'No'], NOSE],
+    s_bajas: [['mismo_dia', 'Es treuen tots el mateix dia, amb una llista'], ['acordamos', 'Es van traient quan ens en recordem'], ['algunas', 'Només canviem algunes contrasenyes'], ['nada', 'Res d’especial'], NOSE],
+    s_dispositivos: [['ordenadores_empresa', 'Ordinadors de l’empresa'], ['ordenadores_personales', 'Ordinadors personals'], ['personales_moviles', 'Mòbils personals amb correu o WhatsApp de la feina'], ['actualizan', 'S’actualitzen sols'], ['antivirus', 'Tenen antivirus'], ['gestionados', 'Els gestiona algú de forma centralitzada'], ['cifrado', 'Disc xifrat'], NOSE],
+    s_incidentes: [['emails_falsos', 'Emails o WhatsApp falsos de proveïdor, banc o cap'], ['cambio_cuenta', 'Intent de canviar el compte bancari d’una factura'], ['cuenta_robada', 'Un compte robat'], ['virus', 'Virus o segrest de dades'], ['perdida', 'Pèrdua de dades o d’un portàtil'], ['web', 'Web caiguda o piratejada'], ['nada', 'Nada'], NOSE],
+    s_datos: [['contacto', 'Contacte de clients o proveïdors'], ['empleados', 'Empleats i nòmines'], ['dni', 'DNI o documents'], ['bancarios', 'Bancaris'], ['salud', 'Salut (també baixes, al·lèrgies)'], ['biometria', 'Petjada o cara'], ['menores', 'Menors'], ['ubicacion', 'Ubicació'], ['ideologia', 'Ideologia, religió, sindicat, origen o orientació'], ['penales', 'Antecedents penals'], ['solvencia', 'Deutes o solvència'], ['ninguno', 'Cap']],
+    s_tarjeta: [['datafono', 'Datàfon'], ['pasarela', 'Passarel·la que porta al banc, Stripe o PayPal'], ['formulario_web', 'Formulari de pagament dins de la nostra web'], ['telefono', 'Ens donen el número per telèfon, email o paper'], ['no_tarjeta', 'No cobrem amb targeta']],
+    s_formacion: [['si', 'Sí, formació'], ['avisos', 'Només avisos informals'], ['no', 'No'], NOSE],
+    ia_uso: [['no', 'No'], ['por_su_cuenta', 'Algunes persones, pel seu compte'], ['empresa', 'Sí, amb eines que paga l’empresa'], ['integrada', 'Sí, i a més integrada en processos'], NOSE],
+    ia_herr: [['ChatGPT', 'ChatGPT'], ['Microsoft Copilot', 'Microsoft Copilot'], ['Gemini', 'Gemini'], ['Claude', 'Claude'], ['Perplexity', 'Perplexity'], ['DeepSeek', 'DeepSeek'], ['Meta AI', 'Meta AI / WhatsApp'], ['Imagen o vídeo', 'Imagen o vídeo'], ['Transcripción', 'Transcripción de reuniones'], ['Dentro de otros programas', 'IA dentro de otros programas'], ['Chatbot', 'Chatbot a la web o WhatsApp'], ['Agentes', 'Agentes o automatizaciones con IA'], ['Otra', 'Otra']],
+    ia_cuenta: [['gratis_personal', 'Gratuitas personales'], ['pago_personal', 'De pago personales'], ['empresa', 'De empresa'], ['mezcla', 'Mezcla'], NOSE],
+    ia_comparte: [['textos', 'Textos sin datos'], ['emails_clientes', 'Emails de clientes'], ['datos_clientes', 'Datos personales de clientes'], ['datos_empleados', 'Datos de empleados'], ['documentos', 'Documentos internos o contratos'], ['financieros', 'Datos financieros'], ['contrasenas', 'Contraseñas o accesos'], NOSE],
+    ia_normas: [['escritas', 'Escrites i comunicades'], ['verbales', 'De paraula'], ['no', 'No']],
+    ia_formacion: [['organizada', 'Formació organitzada'], ['por_su_cuenta', 'Alguns pel seu compte'], ['no', 'No']],
+    ia_cliente: [['chatbot', 'Chatbot a la web o WhatsApp'], ['sin_revisar', 'Respostes enviades sense revisar'], ['contenido', 'Contingut generat que es publica'], ['voz', 'Trucades amb veu d’IA'], ['no', 'No']],
+    ia_personas: [['cvs', 'Filtrar CVs'], ['empleados', 'Avaluar empleats'], ['credito', 'Donar crèdit o ajornaments'], ['precios', 'Preus personalitzats'], ['no', 'No']],
+    ia_autom: [['zapier', 'Zapier'], ['make', 'Make'], ['n8n', 'n8n'], ['power_automate', 'Power Automate'], ['macros', 'Macros de Excel o Sheets'], ['nativas', 'Integracions dels mateixos programes'], ['a_medida', 'Desenvolupaments a mida'], ['ninguna', 'Cap']],
+    ia_mantiene: [['interno', 'Alguien de dentro'], ['externo', 'Un proveedor'], ['nadie', 'Nadie (las hizo alguien que ya no está)']],
+    si_no_nose: [['si', 'Sí'], ['no', 'No'], NOSE],
+    ia_preocupa: [['Privacitat', 'Privacitat'], ['Errors', 'Errors'], ['Cost', 'Cost'], ['Que l’equip no ho faci servir', 'Que l’equip no ho faci servir'], ['Normativa', 'Normativa'], ['Dependre d’un proveïdor', 'Dependre d’un proveïdor'], ['Nada', 'Nada']]
+  };
+  var ROLES_RAPIDOS = [['Gerente', 'direccion', 'dueno'], ['Comercial', 'ventas', 'empleado'], ['Administración', 'administracion', 'empleado'], ['Marketing', 'marketing', 'empleado'], ['Atención al cliente', 'fulfillment', 'empleado'], ['Técnico / operario', 'fulfillment', 'empleado'], ['Jefe de proyecto', 'fulfillment', 'empleado'], ['Recepción', 'fulfillment', 'empleado'], ['Freelance', 'varias', 'autonomo']];
+  var EXTERNOS_RAPIDOS = [['Gestoría o asesoría', 'Contabilidad, impuestos, nóminas'], ['Proveedor principal', 'Materiales o productos'], ['Agencia de marketing', 'Redes, anuncios o web'], ['Transportista', 'Envíos'], ['Informático externo', 'Ordenadores, web o programas'], ['Banco', 'Cobros, pagos, financiación']];
+  var HERR_RAPIDAS = [
+    ['WhatsApp Business', 'comunicacion'], ['WhatsApp personal', 'comunicacion'], ['Gmail', 'correo'], ['Outlook', 'correo'], ['Google Workspace', 'correo'], ['Microsoft 365', 'correo'], ['Excel', 'hoja'], ['Google Sheets', 'hoja'], ['Google Drive', 'archivos'], ['Dropbox', 'archivos'],
+    ['Holded', 'facturacion'], ['Quipu', 'facturacion'], ['A3', 'facturacion'], ['Sage', 'facturacion'], ['Alegra', 'facturacion'], ['Banca online', 'banca'],
+    ['HubSpot', 'crm'], ['Pipedrive', 'crm'], ['Zoho', 'crm'], ['Clientify', 'crm'], ['Odoo', 'erp'],
+    ['Instagram', 'redes'], ['Meta Business Suite', 'redes'], ['Google Ads', 'redes'], ['Canva', 'diseno'], ['Mailchimp', 'email_mkt'], ['Brevo', 'email_mkt'], ['WordPress', 'web'], ['Wix', 'web'],
+    ['Shopify', 'tienda'], ['WooCommerce', 'tienda'], ['PrestaShop', 'tienda'], ['Stripe', 'pagos'], ['TPV / datáfono', 'pagos'],
+    ['Google Calendar', 'agenda'], ['Calendly', 'agenda'], ['Trello', 'tareas'], ['Asana', 'tareas'], ['Notion', 'tareas'], ['ClickUp', 'tareas'], ['Slack', 'chat_interno'], ['Teams', 'chat_interno'],
+    ['ChatGPT', 'ia'], ['Zapier', 'automatizacion'], ['Make', 'automatizacion'], ['n8n', 'automatizacion']
+  ];
+
+  /* ---------- estado ---------- */
+  var CLAVE = 'diagnostico-procesos/' + (MARCA.nombre || 'marca') + '/' + (MARCA.cliente || 'general');
+  var E = null; // respuestas
+  var UI = { seccion: 'inicio', abierto: {} };
+
+  function nuevo() {
+    var areas = {};
+    AREAS.forEach(function (a) { areas[a.id] = { responsable: '', notas: '', procesos: [] }; });
+    return {
+      formato: 'respuestas-diagnostico/1', version_formulario: VERSION, creado: new Date().toISOString(), guardado: '', marca: MARCA.nombre || '',
+      respondente: { nombre: '', cargo: '', email: '', areas: AREAS.map(function (a) { return a.id; }) },
+      empresa: { nombre: MARCA.cliente || '', objetivos: [], tipo_clientes: [], canales_captacion: [], requisitos_seguridad_clientes: [] },
+      equipo: [], externos: [], herramientas: [], areas: areas,
+      seguridad: { dispositivos: [], incidentes: [], datos_personales: [], cobro_tarjeta: [] },
+      ia: { herramientas: [], que_se_comparte: [], cara_cliente: [], decisiones_personas: [], automatizaciones: [], preocupaciones: [] },
+      extra: {},
+      comentarios: ''
+    };
+  }
+
+  function cargarGuardado() {
+    try {
+      var t = localStorage.getItem(CLAVE);
+      if (t) { var d = JSON.parse(t); if (d && d.respuestas) { E = d.respuestas; UI = Object.assign(UI, d.ui || {}); return true; } }
+    } catch (e) { /* sin almacenamiento */ }
+    return false;
+  }
+  /* Guarda como mucho 350 ms después del primer cambio (aunque se siga
+     escribiendo) y siempre al cerrar o cambiar de pestaña. */
+  var temporizador = null;
+  function volcar() {
+    clearTimeout(temporizador);
+    temporizador = null;
+    var g = document.getElementById('guardado');
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify({ respuestas: E, ui: { seccion: UI.seccion } }));
+      if (g) g.textContent = 'Guardado en este navegador ✓ ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      if (g) g.textContent = 'Este navegador no deja guardar: descarga tus respuestas al terminar';
+    }
+  }
+  function guardar() {
+    E.guardado = new Date().toISOString();
+    if (!temporizador) temporizador = setTimeout(volcar, 350);
+  }
+  window.addEventListener('pagehide', function () { if (E) volcar(); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && E) volcar(); });
+
+  /* ---------- utilidades ---------- */
+  function esc(t) { return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function leer(ruta) { return ruta.split('.').reduce(function (o, k) { return o == null ? undefined : o[k]; }, E); }
+  function poner(ruta, valor) {
+    var partes = ruta.split('.');
+    var o = E;
+    for (var i = 0; i < partes.length - 1; i++) {
+      if (o[partes[i]] == null) o[partes[i]] = /^\d+$/.test(partes[i + 1]) ? [] : {};
+      o = o[partes[i]];
+    }
+    o[partes[partes.length - 1]] = valor;
+  }
+  function etiqueta(lista, v) { for (var i = 0; i < lista.length; i++) if (lista[i][0] === v) return lista[i][1]; return v || ''; }
+  function sigId(lista, prefijo) { var n = 0; lista.forEach(function (x) { var m = String(x.id || '').match(/(\d+)$/); if (m) n = Math.max(n, +m[1]); }); return prefijo + (n + 1); }
+  function aviso(txt) {
+    var t = document.createElement('div'); t.className = 'toast'; t.textContent = txt; document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 2600);
+  }
+  function areasMias() { return (E.respondente.areas || []); }
+
+  /* ---------- controles ---------- */
+  function cTexto(ruta, eti, o) {
+    o = o || {};
+    var v = leer(ruta);
+    var ctl = o.area
+      ? '<textarea data-campo="' + ruta + '" placeholder="' + esc(o.ph || '') + '" rows="' + (o.filas || 3) + '">' + esc(v) + '</textarea>'
+      : '<input type="' + (o.tipo || 'text') + '" data-campo="' + ruta + '" value="' + esc(v) + '" placeholder="' + esc(o.ph || '') + '"' + (o.min != null ? ' min="' + o.min + '"' : '') + '>';
+    if (!eti) return ctl;
+    return '<div class="campo"><label>' + eti + (o.opcional ? ' <span class="opcional">(opcional)</span>' : '') + '</label>' + (o.ayuda ? '<p class="ayuda">' + o.ayuda + '</p>' : '') + ctl + '</div>';
+  }
+  function cSelect(ruta, eti, lista, o) {
+    o = o || {};
+    var v = leer(ruta);
+    var html = '<select data-campo="' + ruta + '"><option value="">' + (o.vacio || 'Elige…') + '</option>' + lista.map(function (x) { return '<option value="' + esc(x[0]) + '"' + (String(v) === String(x[0]) ? ' selected' : '') + '>' + esc(x[1]) + '</option>'; }).join('') + '</select>';
+    if (!eti) return html;
+    return '<div class="campo"><label>' + eti + (o.opcional ? ' <span class="opcional">(opcional)</span>' : '') + '</label>' + (o.ayuda ? '<p class="ayuda">' + o.ayuda + '</p>' : '') + html + '</div>';
+  }
+  function cOpciones(ruta, eti, lista, o) {
+    o = o || {};
+    var v = leer(ruta);
+    var multi = !!o.multi;
+    var nombre = 'n' + ruta.replace(/\./g, '_');
+    var html = '<div class="opciones">' + lista.map(function (x) {
+      var marcado = multi ? (Array.isArray(v) && v.indexOf(x[0]) >= 0) : String(v) === String(x[0]);
+      return '<label class="op' + (x[0] === 'nose' ? ' nose' : '') + '"><input type="' + (multi ? 'checkbox' : 'radio') + '" name="' + nombre + '" ' + (multi ? 'data-multi' : 'data-campo') + '="' + ruta + '" value="' + esc(x[0]) + '"' + (o.max ? ' data-max="' + o.max + '"' : '') + (marcado ? ' checked' : '') + '><span>' + esc(x[1]) + '</span></label>';
+    }).join('') + '</div>';
+    if (!eti) return html;
+    return '<div class="campo"><span class="etiqueta">' + eti + (o.opcional ? ' <span class="opcional">(opcional)</span>' : '') + '</span>' + (o.ayuda ? '<p class="ayuda">' + o.ayuda + '</p>' : '') + html + '</div>';
+  }
+
+  function listaQuien(incluirFuera) {
+    var l = E.equipo.map(function (r) { return [r.id, r.rol || '(puesto sin nombre)']; });
+    if (incluirFuera) {
+      l.push(['cliente', 'El cliente']);
+      E.externos.forEach(function (x) { l.push([x.id, (x.nombre || 'Externo') + ' (de fuera)']); });
+      l.push(['auto', 'Un programa, solo']);
+    }
+    return l;
+  }
+  function nombreQuien(id) {
+    if (id === 'cliente') return 'el cliente';
+    if (id === 'auto') return 'un programa, solo,';
+    var r = E.equipo.filter(function (x) { return x.id === id; })[0]; if (r) return r.rol || 'alguien';
+    var x = E.externos.filter(function (x) { return x.id === id; })[0]; if (x) return x.nombre || 'alguien de fuera';
+    return '';
+  }
+  function nombreHerr(id) {
+    if (id === 'mano') return 'a mano o en papel';
+    if (id === 'memoria') return 'de memoria';
+    var h = E.herramientas.filter(function (x) { return x.id === id; })[0];
+    return h ? h.nombre : '';
+  }
+  function todosProcesos() {
+    var l = [];
+    AREAS.forEach(function (a) { (E.areas[a.id].procesos || []).forEach(function (p) { l.push({ area: a, p: p }); }); });
+    return l;
+  }
+
+  /* {areas} y {empresa} en los textos personalizados. */
+  function conHuecos(t) {
+    var nombres = AREAS.map(function (a) { return a.nombre.toLowerCase(); });
+    var lista = nombres.length > 1 ? nombres.slice(0, -1).join(', ') + ' i ' + nombres[nombres.length - 1] : nombres[0];
+    var areas = AREAS.length === 4 ? 'les teves quatre àrees: ' + lista : (AREAS.length === 1 ? 'el área de ' : 'las áreas de ') + lista;
+    return String(t).replace(/\{areas\}/g, areas).replace(/\{empresa\}/g, E.empresa.nombre || 'tu negocio');
+  }
+
+  /* Preguntas propias del consultor, al final de su sección. */
+  function campoExtra(q) {
+    var ruta = 'extra.' + q.id;
+    var eti = esc(q.pregunta);
+    var o = { ayuda: q.ayuda ? esc(q.ayuda) : '' };
+    if (q.tipo === 'texto_largo') return cTexto(ruta, eti, { area: true, filas: 3, ayuda: o.ayuda });
+    if (q.tipo === 'numero') return cTexto(ruta, eti, { tipo: 'number', ayuda: o.ayuda });
+    if (q.tipo === 'una') return cOpciones(ruta, eti, q.opciones.map(function (x) { return [x, x]; }), o);
+    if (q.tipo === 'varias') return cOpciones(ruta, eti, q.opciones.map(function (x) { return [x, x]; }), { multi: true, ayuda: o.ayuda });
+    if (q.tipo === 'si_no') return cOpciones(ruta, eti, [['Sí', 'Sí'], ['No', 'No']], o);
+    return cTexto(ruta, eti, { ayuda: o.ayuda });
+  }
+  function bloqueExtras(seccion) {
+    var qs = EXTRAS.filter(function (q) { return q.seccion === seccion; });
+    if (!qs.length) return '';
+    return '<div class="bloque"><h3>Unas preguntas más</h3>' + qs.map(campoExtra).join('') + '</div>';
+  }
+
+  /* ---------- secciones ---------- */
+  var RENDER = {};
+
+  RENDER.inicio = function () {
+    var r = E.respondente;
+    return '<section class="seccion">' +
+      '<h1>' + (E.empresa.nombre ? 'Hola, ' + esc(E.empresa.nombre) : esc(AJ_TEXTOS.titulo || 'Cuéntanos cómo trabajáis')) + '</h1>' +
+      '<p class="intro">' + esc(conHuecos(AJ_TEXTOS.introduccion || 'Amb aquest qüestionari dibuixarem com funciona avui el teu negoci en {areas}. Amb les teves respostes prepararem el mapa de processos i un manual pas a pas de cada un.')) + '</p>' +
+      '<div class="fila" style="margin:18px 0">' +
+        '<div class="tarjeta"><b>Cómo es</b><p class="suave" style="margin:4px 0 0">' + esc(AJ_TEXTOS.tiempo || 'Entre 30 i 45 minuts en total. No cal fer-lo d’una vegada: es guarda sol en aquest navegador i pots tornar-hi quan vulguis.') + '</p></div>' +
+        '<div class="tarjeta"><b>Qué importa</b><p class="suave" style="margin:4px 0 0">Cómo se hace <b>de verdad</b>, no cómo debería hacerse. Piensa en la última vez que pasó. Aproximado vale: mejor «unas 3 horas» que dejarlo en blanco.</p></div>' +
+        '<div class="tarjeta"><b>Qué no pedimos</b><p class="suave" style="margin:4px 0 0">Nunca datos de tus clientes, ni contraseñas, ni facturas. Solo cómo trabajáis. Usa puestos («Comercial»), no nombres de personas.</p></div>' +
+      '</div>' +
+      '<div class="bloque"><h3>Sobre ti</h3>' +
+        '<div class="fila">' + cTexto('respondente.nombre', 'Tu nombre') + cTexto('respondente.cargo', 'Tu puesto', { ph: 'Gerente, Administración…' }) + '</div>' +
+        cOpciones('respondente.areas', '¿Qué áreas vas a contestar tú?', AREAS.map(function (a) { return [a.id, a.nombre]; }), { multi: true, ayuda: 'Si otra persona conoce mejor un área, desmárcala: puede rellenar su parte en su propio ordenador con este mismo archivo, y luego se juntan.' }) +
+      '</div>' +
+      '<div class="bloque"><h3>¿Ya empezaste en otro ordenador?</h3><p class="ayuda">Si tienes un archivo de respuestas descargado de este cuestionario, cárgalo y sigue donde lo dejaste.</p>' +
+        '<button type="button" class="boton" data-accion="cargar">Cargar un archivo de respuestas</button> <button type="button" class="boton peligro" data-accion="borrar-todo">Empezar de cero</button>' +
+      '</div>' +
+    '</section>';
+  };
+
+  RENDER.empresa = function () {
+    var tipos = Object.keys(CATALOGO.tipos_negocio || {}).map(function (k) { return [k, CATALOGO.tipos_negocio[k]]; });
+    return '<section class="seccion"><h2>Tu empresa</h2><p class="intro">Lo básico para entender el negocio. Lo marcado como opcional ayuda a afinar, pero puedes saltarlo.</p>' +
+      '<div class="bloque"><h3>Lo básico</h3>' +
+        '<div class="fila">' + cTexto('empresa.nombre', 'Nombre comercial') + cSelect('empresa.pais', 'País de la sede', O.pais) + '</div>' +
+        '<div class="fila">' + cSelect('empresa.sector', 'Sector', O.sector) + cSelect('empresa.tipo_negocio', 'Tipo de negocio', tipos, { ayuda: '' }) + '</div>' +
+        cTexto('empresa.actividad', 'Què veneu i a qui?', { area: true, filas: 2, ph: 'Reformas de cocinas y baños para particulares en Valencia' }) +
+        cOpciones('empresa.tipo_clientes', '¿A quién vendéis?', O.tipo_clientes, { multi: true }) +
+        cOpciones('empresa.empleados', 'Quantes persones treballen, comptant socis i autònoms habituals?', O.empleados) +
+        cOpciones('empresa.canales_captacion', '¿Cómo os llegan los clientes?', O.canales, { multi: true }) +
+        cOpciones('empresa.objetivos', '¿Qué quieres conseguir en los próximos 12 meses?', O.objetivos, { multi: true, max: 3, ayuda: 'Hasta 3.' }) +
+        cTexto('empresa.dolores_principales', '¿Qué tres cosas os quitan hoy más tiempo o dinero?', { area: true, ph: 'Con tus palabras' }) +
+      '</div>' +
+      (activo('empresa_para_afinar') ? '<details class="mas bloque"><summary>Para afinar (opcional, 3 minutos)</summary>' +
+        '<div class="fila">' + cTexto('empresa.web_dominio', 'Vuestra web', { ph: 'miempresa.es' }) + cSelect('empresa.facturacion', 'Facturación anual aproximada', O.facturacion) + '</div>' +
+        '<label class="casilla campo"><input type="checkbox" data-bool="empresa.chequeo_pasivo"' + (E.empresa.chequeo_pasivo ? ' checked' : '') + '><span>Autoritzo a revisar des de fora la configuració pública del nostre correu i la nostra web, sense accedir a res.</span></label>' +
+        '<div class="fila">' + cSelect('empresa.modalidad', '¿Dónde trabaja el equipo?', O.modalidad) + cSelect('empresa.clientes_nuevos_mes', 'Clientes nuevos al mes', O.clientes_mes) + '</div>' +
+        cTexto('empresa.ticket_medio', 'Lo que gasta un cliente normal', { ph: 'Entre 300 y 600 € por pedido' }) +
+        cTexto('empresa.tarea_a_eliminar', 'Si poguessis no tornar a fer una tasca mai més, quina seria?') +
+        '<div class="fila">' + cSelect('empresa.presupuesto_mejora', '¿Cuánto podrías invertir el primer año en mejorar procesos?', O.presupuesto) + cSelect('empresa.gasto_software_mes', '¿Cuánto gastáis al mes en programas y suscripciones?', O.gasto_soft) + '</div>' +
+        '<div class="fila">' + cSelect('empresa.horas_semana_disponibles', 'Horas a la semana que el equipo puede dedicar a implantar cambios', O.horas_cambio) + cSelect('empresa.responsable_informatica', '¿Quién se encarga de la informática?', O.informatica) + '</div>' +
+        cOpciones('empresa.requisitos_seguridad_clientes', '¿Algún cliente os pide requisitos de seguridad o certificados?', O.requisitos, { multi: true }) +
+        (E.empresa.pais === 'España' ? cSelect('empresa.verifactu', '¿Vuestro programa de facturación está adaptado a Verifactu?', O.verifactu) : '') +
+      '</details>' : '') + '</section>';
+  };
+
+  RENDER.equipo = function () {
+    var roles = E.equipo.map(function (r, i) {
+      var b = 'equipo.' + i + '.';
+      return '<div class="tarjeta"><div class="tarjeta-cab">' + cTexto(b + 'rol', '', { ph: 'Nombre del puesto' }) + '<div class="acciones"><button type="button" class="icono" title="Quitar" data-accion="quitar-rol" data-i="' + i + '">✕</button></div></div>' +
+        '<div class="fila">' +
+          '<div class="campo"><label>Personas</label>' + cTexto(b + 'personas', '', { tipo: 'number', min: 1 }) + '</div>' +
+          cSelect(b + 'area', 'Área principal', O.area_rol) + cSelect(b + 'vinculo', 'Relación', O.vinculo) +
+        '</div>' +
+        '<details class="mas"><summary>Coste y jornada (opcional)</summary><div class="fila">' + cSelect(b + 'coste_hora', 'Coste por hora para la empresa (sueldo + seguros sociales)', O.coste_hora) + cSelect(b + 'jornada', 'Jornada', O.jornada) + '</div></details>' +
+      '</div>';
+    }).join('');
+    var externos = E.externos.map(function (x, i) {
+      var b = 'externos.' + i + '.';
+      return '<div class="tarjeta"><div class="tarjeta-cab">' + cTexto(b + 'nombre', '', { ph: 'Gestoría, proveedor…' }) + '<div class="acciones"><button type="button" class="icono" title="Quitar" data-accion="quitar-externo" data-i="' + i + '">✕</button></div></div>' + cTexto(b + 'que_hace', '', { ph: '¿Qué hace para vosotros?' }) + '</div>';
+    }).join('');
+    var usadosR = E.equipo.map(function (r) { return (r.rol || '').toLowerCase(); });
+    var usadosX = E.externos.map(function (r) { return (r.nombre || '').toLowerCase(); });
+    return '<section class="seccion"><h2>Quién trabaja</h2><p class="intro">Los puestos que hay en la empresa. Pon <b>puestos, no nombres</b>: «Comercial», no «Laura». Si una persona hace de todo, basta un puesto (por ejemplo «Gerente»).</p>' +
+      '<div class="bloque"><h3>El equipo</h3><div class="rapidos">' + ROLES_RAPIDOS.map(function (r, i) { return '<button type="button" data-accion="rol-rapido" data-i="' + i + '"' + (usadosR.indexOf(r[0].toLowerCase()) >= 0 ? ' disabled' : '') + '>+ ' + esc(r[0]) + '</button>'; }).join('') + '</div>' +
+        (roles || '<p class="suave">Aún no hay puestos. Añade los que haya con los botones de arriba o con «Añadir otro puesto».</p>') +
+        '<button type="button" class="boton" data-accion="nuevo-rol">+ Añadir otro puesto</button></div>' +
+      '<div class="bloque"><h3>Empresas o personas de fuera con las que trabajáis</h3><p class="ayuda">Gestoría, proveedores, agencias, transportistas… Solo los que intervienen en cómo trabajáis.</p><div class="rapidos">' + EXTERNOS_RAPIDOS.map(function (r, i) { return '<button type="button" data-accion="externo-rapido" data-i="' + i + '"' + (usadosX.indexOf(r[0].toLowerCase()) >= 0 ? ' disabled' : '') + '>+ ' + esc(r[0]) + '</button>'; }).join('') + '</div>' +
+        externos + '<button type="button" class="boton" data-accion="nuevo-externo">+ Añadir otro</button></div>' +
+    '</section>';
+  };
+
+  RENDER.herramientas = function () {
+    var nombres = E.herramientas.map(function (h) { return (h.nombre || '').toLowerCase(); });
+    var tarjetas = E.herramientas.map(function (h, i) {
+      var b = 'herramientas.' + i + '.';
+      var otras = E.herramientas.filter(function (x) { return x.id !== h.id; }).map(function (x) { return [x.id, x.nombre || '(sin nombre)']; });
+      return '<div class="tarjeta"><div class="tarjeta-cab">' + cTexto(b + 'nombre', '', { ph: 'Nombre de la herramienta' }) + '<div class="acciones"><button type="button" class="icono" title="Quitar" data-accion="quitar-herr" data-i="' + i + '">✕</button></div></div>' +
+        '<div class="fila">' + cSelect(b + 'categoria', 'Tipo', O.categoria) + cTexto(b + 'uso', '¿Para qué la usáis?') + '<div class="campo"><label>¿Cuántas personas la usan?</label>' + cTexto(b + 'usuarios', '', { tipo: 'number', min: 0 }) + '</div></div>' +
+        '<div class="fila">' + cSelect(b + 'titular', '¿A nombre de quién está la cuenta?', O.titular) + cSelect(b + 'administrador', '¿Quién puede dar de alta usuarios y cambiar la configuración?', listaQuien(false).concat(E.externos.map(function (x) { return [x.id, x.nombre + ' (de fuera)']; })).concat([['varios', 'Varias personas'], ['nadie', 'Nadie claro']])) + '</div>' +
+        '<div class="fila">' + cSelect(b + 'criticidad', 'Si dejara de funcionar una semana…', O.criticidad) + cSelect(b + 'dos_pasos', 'Para entrar, ¿pide un código además de la contraseña?', O.dos_pasos_h) + '</div>' +
+        '<details class="mas"><summary>Más detalle (opcional)</summary>' +
+          '<div class="fila">' + cSelect(b + 'plan', 'Plan', O.plan) + '<div class="campo"><label>Coste al mes (€)</label>' + cTexto(b + 'coste_mes', '', { tipo: 'number', min: 0 }) + '</div>' + cSelect(b + 'exportar', '¿Podéis descargar toda vuestra información?', O.exportar) + '</div>' +
+          cOpciones(b + 'datos', '¿Qué información guarda?', O.datos_herr, { multi: true }) +
+          (otras.length ? cOpciones(b + 'copia_manual_con', '¿Se copian datos a mano entre esta y otra herramienta? ¿Cuál?', otras, { multi: true }) : '') +
+          '<div class="fila">' + cSelect(b + 'funciones_ia', '¿Trae funciones de inteligencia artificial?', O.funciones_ia) + cSelect(b + 'satisfaccion', '¿Cuánto os gusta? (1 a 5)', O.satisfaccion) + '</div>' +
+          cTexto(b + 'molestia', 'Lo que más os molesta de ella', { opcional: true }) +
+        '</details></div>';
+    }).join('');
+    var rapidas = HERR_RAPIDAS.map(function (h, i) { return '<button type="button" data-accion="herr-rapida" data-i="' + i + '"' + (nombres.indexOf(h[0].toLowerCase()) >= 0 ? ' disabled' : '') + '>+ ' + esc(h[0]) + '</button>'; }).join('');
+    return '<section class="seccion"><h2>Herramientas</h2><p class="intro">Los programas y aplicaciones que usáis para trabajar, también los gratuitos (WhatsApp, Excel…). Luego, en cada paso, elegirás con cuál se hace. El papel y la libreta no hace falta añadirlos: ya están como opción.</p>' +
+      '<div class="bloque"><h3>Añade las que uséis</h3><div class="rapidos">' + rapidas + '</div>' + tarjetas +
+      '<button type="button" class="boton" data-accion="nueva-herr">+ Añadir otra</button></div></section>';
+  };
+
+  /* ----- áreas y procesos ----- */
+  function plantillasDe(areaId) {
+    var tipo = E.empresa.tipo_negocio || '';
+    return (CATALOGO.procesos || []).filter(function (p) { return p.area === areaId; }).map(function (p) {
+      return { p: p, tipico: p.para.indexOf('todos') >= 0 || p.para.indexOf(tipo) >= 0 };
+    }).sort(function (a, b) { return (b.tipico - a.tipico); });
+  }
+  function estadoProceso(p) {
+    var pasos = (p.pasos || []).filter(function (s) { return (s.que || '').trim() || s.tipo === 'decision'; });
+    if (!pasos.length) return ['vacio', 'Sin pasos'];
+    var faltan = pasos.filter(function (s) { return s.tipo !== 'espera' && !s.quien; }).length + (p.resultado ? 0 : 1) + ((p.disparador || {}).tipo ? 0 : 1) + (pasos.some(function (s) { return s.sugerido; }) ? 1 : 0);
+    if (faltan || !p.confirmado) return ['medias', pasos.length + ' pasos · a medias'];
+    return ['listo', pasos.length + ' pasos · listo'];
+  }
+
+  RENDER.area = function (areaId) {
+    var a = AREAS.filter(function (x) { return x.id === areaId; })[0];
+    var area = E.areas[areaId];
+    var mia = areasMias().indexOf(areaId) >= 0;
+    var elegidos = area.procesos.map(function (p) { return p.plantilla; });
+    var catalogo = plantillasDe(areaId).map(function (x) {
+      var marcado = elegidos.indexOf(x.p.id) >= 0;
+      return '<label class="proc-op' + (marcado ? ' elegido' : '') + '"><input type="checkbox" data-accion="elegir-proceso" data-plantilla="' + x.p.id + '"' + (marcado ? ' checked' : '') + '><span><b>' + esc(x.p.nombre) + '</b><small>' + esc(x.p.alcance) + '</small>' + (x.tipico && E.empresa.tipo_negocio ? '<span class="tipico">Típico en tu tipo de negocio</span>' : '') + '</span></label>';
+    }).join('');
+    var procesos = area.procesos.map(function (p, i) { return renderProceso(areaId, i); }).join('');
+    return '<section class="seccion"><h2>' + a.nombre + '</h2><p class="intro">' + a.texto + '</p>' +
+      (!mia ? '<div class="area-ajena">Esta área la va a contestar otra persona. Si la conoces, puedes contestarla igualmente. <button type="button" class="boton peque" data-accion="hacerla-mia" data-area="' + areaId + '">La contesto yo</button></div>' : '') +
+      '<div class="bloque">' + cSelect('areas.' + areaId + '.responsable', '¿Quién es responsable de esta área?', listaQuien(false).concat(E.externos.map(function (x) { return [x.id, x.nombre + ' (de fuera)']; }))) + '</div>' +
+      '<div class="bloque"><h3>¿Qué procesos hacéis?</h3><p class="ayuda">Marca los que existen en tu negocio, aunque se hagan de manera informal. Si hay alguno que no aparece, añádelo. Con 2 a 4 por área es suficiente para empezar; los que más os preocupan, primero.</p>' +
+        '<div class="catalogo">' + catalogo + '</div>' +
+        '<div style="margin-top:12px"><button type="button" class="boton" data-accion="proceso-propio" data-area="' + areaId + '">+ Añadir un proceso que no aparece</button></div>' +
+      '</div>' +
+      (procesos ? '<div class="bloque"><h3>Cuéntanos cómo lo hacéis</h3><p class="ayuda">Abre cada proceso y descríbelo. Unos 8-10 minutos cada uno.</p>' + procesos + '</div>' : '') +
+      '<div class="bloque">' + cTexto('areas.' + areaId + '.notas', '¿Algo más de esta área que no encaje en los procesos?', { area: true, opcional: true }) + '</div>' +
+    '</section>';
+  };
+
+  function renderProceso(areaId, i) {
+    var p = E.areas[areaId].procesos[i];
+    var b = 'areas.' + areaId + '.procesos.' + i + '.';
+    var est = estadoProceso(p);
+    var abierto = UI.abierto[areaId + ':' + p.id];
+    var plantilla = (CATALOGO.procesos || []).filter(function (x) { return x.id === p.plantilla; })[0];
+    var disp = p.disparador || {};
+    var otros = todosProcesos().filter(function (x) { return x.p.id !== p.id; }).map(function (x) { return [x.p.id, x.area.nombre + ' · ' + (x.p.nombre || 'sin nombre')]; });
+    var phDisp = { cliente: 'El cliente escribe por WhatsApp pidiendo precio', externo: 'Llega la factura del proveedor', calendario: 'Cada lunes / el día 1 de cada mes', sistema: 'Entra un pedido en la tienda online', decision: 'Decidimos lanzar una campaña', proceso: '', otro: '' }[disp.tipo] || 'Con tus palabras';
+    var pasos = (p.pasos || []).map(function (s, j) { return renderPaso(areaId, i, j); }).join('');
+    var sinPasos = !(p.pasos || []).length;
+    return '<details class="proceso" data-proceso="' + areaId + ':' + esc(p.id) + '"' + (abierto ? ' open' : '') + '><summary><b>' + esc(p.nombre || 'Proceso sin nombre') + '</b><span class="estado ' + est[0] + '">' + est[1] + '</span></summary><div class="proceso-cuerpo">' +
+      cTexto(b + 'nombre', '¿Cómo lo llamáis vosotros?') +
+      cTexto(b + 'ultimo_caso', 'Piensa en la última vez que pasó: ¿cuándo fue y de qué se trataba?', { ph: 'El martes, el presupuesto de un baño en Getafe', ayuda: 'Contesta todo lo demás pensando en ese caso real: cómo fue de verdad, no cómo debería ser.' }) +
+      '<div class="bloque"><h3>Cómo empieza</h3>' +
+        cOpciones(b + 'disparador.tipo', '¿Qué lo pone en marcha?', O.disparador) +
+        (disp.tipo === 'proceso' ? cSelect(b + 'disparador.proceso', '¿Qué proceso?', otros) : '') +
+        (disp.tipo === 'externo' ? cSelect(b + 'disparador.externo', '¿Quién?', E.externos.map(function (x) { return [x.id, x.nombre]; }), { vacio: E.externos.length ? 'Elige…' : 'Añade antes a los de fuera en «Quién trabaja»' }) : '') +
+        cTexto(b + 'disparador.texto', 'Cuéntalo con tus palabras', { ph: phDisp }) +
+        '<div class="fila"><div class="campo"><label>¿Cuántas veces pasa?</label>' + cTexto(b + 'frecuencia.veces', '', { tipo: 'number', min: 0, ph: 'Número' }) + '</div>' + cSelect(b + 'frecuencia.periodo', 'Cada…', O.periodo) + cSelect(b + 'responsable', 'Responsable de que salga bien', listaQuien(false)) + '</div>' +
+      '</div>' +
+      '<div class="bloque"><h3>Los pasos</h3><p class="ayuda">Un paso por fila, en orden, empezando cada uno por un verbo («Preparar el presupuesto»). Si en algún momento alguien decide algo, añade un paso de tipo <b>Decisión</b>. Si hay que esperar, uno de tipo <b>Espera</b>. Si se manda o se recibe algo de fuera (del cliente, de un proveedor), uno de tipo <b>Envío o recepción</b>.</p>' +
+        (sinPasos && plantilla && activo('pasos_tipicos') ? '<div class="tarjeta" style="background:#f8fafc"><p style="margin-bottom:10px">¿Cómo quieres empezar?</p><button type="button" class="boton principal" data-accion="cargar-plantilla" data-area="' + areaId + '" data-i="' + i + '">Con los pasos típicos (luego los cambias)</button> <button type="button" class="boton" data-accion="nuevo-paso" data-area="' + areaId + '" data-i="' + i + '">En blanco</button><p class="ayuda" style="margin-top:10px">Los pasos típicos son solo un punto de partida: se marcan en amarillo hasta que los confirmes, cambies o borres.</p></div>' : '') +
+        pasos +
+        (!sinPasos || !plantilla || !activo('pasos_tipicos') ? '<button type="button" class="boton" data-accion="nuevo-paso" data-area="' + areaId + '" data-i="' + i + '">+ Añadir paso</button>' : '') +
+      '</div>' +
+      '<div class="bloque"><h3>Cómo termina</h3>' +
+        cTexto(b + 'resultado', 'Cuando sale bien, ¿cuándo lo das por terminado?', { ph: 'Cuando el cliente ha pagado', ayuda: 'Ojo: «cuando el cliente ha pagado», no «cuando enviamos la factura».' }) +
+        cTexto(b + 'otros_finales', '¿De qué otras formas puede terminar? ¿Más o menos cuántos de cada 10?', { ph: 'Rechazado, 3 de cada 10. Sin respuesta, 2 de cada 10.', opcional: true }) +
+        '<div class="fila">' + cSelect(b + 'siguiente', 'Cuando termina, ¿empieza otro proceso?', otros, { vacio: 'No / no lo sé' }) + cSelect(b + 'duracion', 'De principio a fin, ¿cuánto pasa normalmente?', O.duracion) + '</div>' +
+      '</div>' +
+      '<div class="bloque"><h3>Lo que no sale como debería</h3>' +
+        cTexto(b + 'caso_complicado', 'Cuéntanos la última vez que se complicó: qué pasó y cómo se resolvió', { area: true, filas: 2, opcional: true }) +
+        cOpciones(b + 'excepciones_frecuencia', '¿Cada cuánto se sale del camino normal?', O.excepciones) +
+        cTexto(b + 'dolor', '¿Qué es lo que más te molesta de este proceso?', { area: true, filas: 2, opcional: true }) +
+      '</div>' +
+      (activo('proceso_para_terminar') ? '<details class="mas bloque"><summary>Para terminar (opcional, 1 minuto)</summary>' +
+        cOpciones(b + 'documentado', '¿Está escrito en algún sitio cómo se hace?', O.documentado) +
+        cOpciones(b + 'dependencia_persona', 'Si la persona que más sabe de esto falta dos semanas…', O.dependencia) +
+        cOpciones(b + 'se_mide', '¿Medís algo de este proceso (tiempos, errores, conversión)?', O.se_mide) +
+        ((p.se_mide === 'datos' || p.se_mide === 'ojo') ? cTexto(b + 'kpi_actual', '¿Qué medís y cuánto da hoy?') : '') +
+        cOpciones(b + 'cambios_previstos', '¿Va a cambiar en los próximos 12 meses?', O.cambios) +
+        cOpciones(b + 'impacto', 'Si este proceso mejora, ¿dónde se notaría?', O.impacto, { multi: true }) +
+        cOpciones(b + 'prioridad', '¿Cuánto te importa mejorarlo?', O.prioridad) +
+        cOpciones(b + 'datos_sensibles', '¿En este proceso se manejan datos de personas?', O.datos_proc, { multi: true }) +
+      '</details>' : '') +
+      '<div class="bloque"><h3>¿Lo hemos entendido bien?</h3><p class="ayuda">Así queda contado tu proceso. Léelo de arriba abajo: si algo no es así, corrígelo en los pasos.</p><div id="relato-' + areaId + '-' + i + '">' + relato(p) + '</div>' +
+        '<div style="margin-top:12px">' + (p.confirmado ? '<span class="confirmado">✓ Confirmado</span> <button type="button" class="boton peque" data-accion="desconfirmar" data-area="' + areaId + '" data-i="' + i + '">Deshacer</button>' : '<button type="button" class="boton acento" data-accion="confirmar" data-area="' + areaId + '" data-i="' + i + '">Sí, es así</button>') + '</div>' +
+      '</div>' +
+      '<div style="margin-top:16px;text-align:right"><button type="button" class="boton peque peligro" data-accion="quitar-proceso" data-area="' + areaId + '" data-i="' + i + '">Quitar este proceso</button></div>' +
+    '</div></details>';
+  }
+
+  function renderPaso(areaId, i, j) {
+    var p = E.areas[areaId].procesos[i];
+    var s = p.pasos[j];
+    var b = 'areas.' + areaId + '.procesos.' + i + '.pasos.' + j + '.';
+    var tipo = s.tipo || 'tarea';
+    var herrs = E.herramientas.map(function (h) { return [h.id, h.nombre || '(sin nombre)']; }).concat([['mano', 'A mano / papel'], ['memoria', 'De memoria']]);
+    var boton = function (t, txt) { return '<button type="button" class="' + (tipo === t ? 'activo' : '') + '" data-accion="tipo-paso" data-tipo="' + t + '" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">' + txt + '</button>'; };
+    var cuerpo = '';
+    var avisos = [];
+    if (tipo === 'decision') {
+      var dec = s.decision || { opciones: [] };
+      var destinos = [['siguiente', 'Sigue con el paso siguiente']].concat(p.pasos.map(function (x, k) { return k === j ? null : ['paso:' + x.id, 'Va al paso ' + (k + 1) + ': ' + (x.tipo === 'decision' ? ((x.decision || {}).pregunta || x.que || 'decisión') : (x.que || '…'))]; }).filter(Boolean)).concat([['fin', 'Termina aquí']]).concat(todosProcesos().filter(function (x) { return x.p.id !== p.id; }).map(function (x) { return ['proceso:' + x.p.id, 'Termina y pasa a: ' + (x.p.nombre || 'otro proceso')]; }));
+      cuerpo = '<div class="fila">' + cTexto(b + 'decision.pregunta', '¿Qué se decide? En forma de pregunta', { ph: '¿Acepta el presupuesto?' }) + cSelect(b + 'quien', '¿Quién decide?', listaQuien(true)) + '</div>' +
+        '<div class="campo"><span class="etiqueta">Respuestas posibles y qué pasa con cada una</span>' +
+        (dec.opciones || []).map(function (o, k) {
+          var bo = b + 'decision.opciones.' + k + '.';
+          return '<div class="opcion-dec">' + cTexto(bo + 'texto', '', { ph: 'Sí / No / Pide cambios' }) + cSelect(bo + 'destino', '', destinos, { vacio: '¿Y entonces?' }) + '<button type="button" class="icono" title="Quitar respuesta" data-accion="quitar-opcion" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '" data-k="' + k + '">✕</button>' + (o.destino === 'fin' ? '<div class="fin-txt">' + cTexto(bo + 'fin', '', { ph: '¿Cómo termina? Ej.: Presupuesto rechazado' }) + '</div>' : '') + '</div>';
+        }).join('') +
+        '<button type="button" class="boton peque" data-accion="nueva-opcion" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">+ Añadir respuesta</button></div>';
+      if ((dec.opciones || []).filter(function (o) { return (o.texto || '').trim(); }).length < 2) avisos.push('Una decisión necesita al menos dos respuestas.');
+      (dec.opciones || []).forEach(function (o) { if ((o.texto || '').trim() && !o.destino) avisos.push('Falta decir qué pasa si «' + esc(o.texto) + '».'); });
+      if (!s.quien) avisos.push('Falta quién decide.');
+    } else if (tipo === 'espera') {
+      cuerpo = '<div class="fila">' + cTexto(b + 'que', '¿Qué se espera?', { ph: 'Esperar la respuesta del cliente' }) + cTexto(b + 'espera', '¿Cuánto, normalmente?', { ph: 'Unos 3 días' }) + '</div>';
+    } else {
+      var com = tipo === 'comunicacion' ? (s.comunicacion || {}) : null;
+      cuerpo = '<div class="fila">' + cTexto(b + 'que', '¿Qué se hace?', { ph: tipo === 'comunicacion' ? 'Enviar el presupuesto' : 'Preparar el presupuesto' }) + cSelect(b + 'quien', '¿Quién lo hace?', listaQuien(true)) + '</div>' +
+        (com ? '<div class="fila">' + cSelect(b + 'comunicacion.sentido', '¿Se envía o se recibe?', [['envia', 'Lo enviamos'], ['recibe', 'Lo recibimos']]) + cSelect(b + 'comunicacion.con', '¿Con quién?', [['cliente', 'El cliente']].concat(E.externos.map(function (x) { return [x.id, x.nombre]; }))) + cTexto(b + 'comunicacion.que', '¿Qué es lo que va o viene?', { ph: 'Presupuesto, factura, pedido…' }) + '</div>' : '') +
+        cOpciones(b + 'con', '¿Con qué?', herrs, { multi: true }) +
+        cOpciones(b + 'tiempo', 'Tiempo de trabajo cada vez (sin contar esperas)', O.tiempo);
+      if (!s.quien) avisos.push('Falta quién lo hace.');
+    }
+    var detalle = tipo === 'espera' ? '' : '<details class="mas"><summary>Añadir detalle (opcional)</summary>' +
+      cTexto(b + 'como', '¿Cómo se hace exactamente? Lo que le explicarías a alguien nuevo', { area: true, filas: 3 }) +
+      cTexto(b + 'dolor', '¿Qué falla o se atasca en este paso?', { area: true, filas: 2 }) +
+      (activo('detalle_de_cada_paso') ? '<p class="ayuda" style="margin-top:14px"><b>Si tienes un minuto más</b>, esto nos ayuda a ver qué se podría mejorar:</p>' +
+      cOpciones(b + 'fase2.naturaleza', '¿Qué se hace sobre todo en este paso?', O.naturaleza) +
+      cOpciones(b + 'fase2.formato_entrada', '¿Cómo llega la información para hacerlo?', O.formato, { multi: true }) +
+      cOpciones(b + 'fase2.copia_manual', '¿Se copian datos a mano de un sitio a otro?', [['si', 'Sí'], ['no', 'No']]) +
+      cOpciones(b + 'fase2.errores', '¿Cada cuánto hay que rehacerlo o corregirlo?', O.errores) +
+      cOpciones(b + 'fase2.gravedad', 'Si sale mal, ¿qué pasa?', O.gravedad) +
+      cOpciones(b + 'fase2.datos_personales', '¿Se manejan datos de personas?', O.datos_paso) +
+      cOpciones(b + 'fase2.accion', '¿Qué produce este paso?', O.accion, { multi: true }) : '') +
+    '</details>';
+    return '<div class="paso ' + tipo + (s.sugerido ? ' sugerido' : '') + '" data-paso="' + areaId + ':' + i + ':' + j + '"><div class="paso-cab"><span class="paso-num">' + (j + 1) + '</span>' +
+      '<span class="tipos">' + boton('tarea', 'Tarea') + boton('decision', 'Decisión') + boton('espera', 'Espera') + boton('comunicacion', 'Envío o recepción') + '</span>' +
+      (s.sugerido ? '<span class="etq-sugerido">Sugerido</span><button type="button" class="boton peque" data-accion="aceptar-sugerido" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">✓ Lo hacemos así</button>' : '') +
+      '<span class="acciones"><button type="button" class="icono" title="Subir" data-accion="subir-paso" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">↑</button><button type="button" class="icono" title="Bajar" data-accion="bajar-paso" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">↓</button><button type="button" class="icono" title="Insertar un paso debajo" data-accion="insertar-paso" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">＋</button><button type="button" class="icono" title="Borrar paso" data-accion="quitar-paso" data-area="' + areaId + '" data-i="' + i + '" data-j="' + j + '">✕</button></span></div>' +
+      cuerpo + avisos.map(function (a) { return '<div class="avisito">' + a + '</div>'; }).join('') + detalle + '</div>';
+  }
+
+  /* El relato que el cliente lee para confirmar que se ha entendido (playback). */
+  function relato(p) {
+    var pasos = p.pasos || [];
+    if (!pasos.length) return '<div class="relato suave">Cuando añadas pasos, aquí aparecerá tu proceso contado de principio a fin.</div>';
+    var disp = p.disparador || {};
+    var inicio = (disp.texto || etiqueta(O.disparador, disp.tipo) || 'algo que no has dicho todavía').replace(/\.$/, '');
+    var idx = {}; pasos.forEach(function (s, k) { idx[s.id] = k + 1; });
+    var destino = function (o) {
+      var d = o.destino || 'siguiente';
+      if (d === 'siguiente') return 'sigue con el paso siguiente';
+      if (d === 'fin') return 'termina' + (o.fin ? ' («' + esc(o.fin) + '»)' : '');
+      if (d.indexOf('paso:') === 0) return 'vuelve o salta al paso ' + (idx[d.slice(5)] || '?');
+      if (d.indexOf('proceso:') === 0) { var x = todosProcesos().filter(function (y) { return y.p.id === d.slice(8); })[0]; return 'termina y pasa a «' + esc(x ? x.p.nombre : 'otro proceso') + '»'; }
+      return '';
+    };
+    var lis = pasos.map(function (s, k) {
+      var t = s.tipo || 'tarea';
+      if (t === 'decision') {
+        var dec = s.decision || {};
+        return '<li class="dec">◆ <b>' + esc(dec.pregunta || s.que || '¿…?') + '</b>' + (s.quien ? ' (decide ' + esc(nombreQuien(s.quien)) + ')' : '') + ': ' + (dec.opciones || []).map(function (o) { return 'si «' + esc(o.texto || '…') + '», ' + destino(o); }).join('; ') + '.</li>';
+      }
+      if (t === 'espera') return '<li>Se espera' + (s.espera ? ' ' + esc(s.espera) : '') + (s.que ? ' (' + esc(s.que.toLowerCase()) + ')' : '') + '.</li>';
+      var quien = s.quien ? nombreQuien(s.quien) : '<i>alguien (falta decir quién)</i>';
+      var con = (s.con || []).map(nombreHerr).filter(Boolean);
+      var com = t === 'comunicacion' && s.comunicacion ? ' — ' + (s.comunicacion.sentido === 'recibe' ? 'se recibe de ' : 'se envía a ') + esc(s.comunicacion.con === 'cliente' || !s.comunicacion.con ? 'el cliente' : nombreQuien(s.comunicacion.con)) : '';
+      return '<li><b>' + esc(quien.charAt(0).toUpperCase() + quien.slice(1)) + '</b>: ' + esc((s.que || '…').charAt(0).toLowerCase() + (s.que || '…').slice(1)) + (con.length ? ', con ' + esc(con.join(' y ')) : '') + (s.tiempo && s.tiempo !== 'nose' ? ' (' + esc(etiqueta(O.tiempo, s.tiempo)) + ')' : '') + com + '.</li>';
+    }).join('');
+    var sig = p.siguiente ? todosProcesos().filter(function (y) { return y.p.id === p.siguiente; })[0] : null;
+    return '<div class="relato"><p style="margin:0">Empieza cuando <b>' + esc(inicio.charAt(0).toLowerCase() + inicio.slice(1)) + '</b>.</p><ol>' + lis + '</ol><p style="margin:0">Termina cuando <b>' + esc((p.resultado || 'no lo has dicho todavía').replace(/\.$/, '')) + '</b>' + (sig ? ', y entonces empieza «' + esc(sig.p.nombre) + '»' : '') + '.</p></div>';
+  }
+
+  RENDER.seguridad = function () {
+    var intro = activo('seguridad') ? 'Diez preguntas rápidas sobre cómo protegéis la información' + (activo('ia') ? ' y otras pocas sobre la inteligencia artificial' : '') + '. <b>No te pediremos contraseñas ni datos de clientes</b>: basta con sí, no o no sé. «No sé» es una respuesta válida.' : 'Unas preguntas rápidas sobre cómo usáis hoy la inteligencia artificial. «No sé» es una respuesta válida.';
+    return '<section class="seccion"><h2>' + BLOQUE_DATOS + '</h2><p class="intro">' + intro + '</p>' +
+      (!activo('seguridad') ? '' : '<div class="bloque"><h3>Seguridad</h3>' +
+        cOpciones('seguridad.dos_pasos', 'Per entrar al correu, al banc i als programes principals, es demana un codi del mòbil a més de la contrasenya?', O.s_dos_pasos) +
+        cOpciones('seguridad.cuentas_compartidas', 'Hi ha usuaris i contrasenyes que fan servir diverses persones (info@, xarxes, banc, botiga)?', O.s_compartidas) +
+        cOpciones('seguridad.contrasenas', 'On es guarden normalment les contrasenyes de la feina?', O.s_contrasenas) +
+        cOpciones('seguridad.copias', 'Feu còpies de seguretat de la informació important?', O.s_copias) +
+        cOpciones('seguridad.bajas', 'Quan algú se’n va (o deixeu de treballar amb una agència), què passa amb els seus accessos?', O.s_bajas) +
+        cOpciones('seguridad.dispositivos', 'Amb quins equips es treballa? Marca tot el que s’hi apliqui', O.s_dispositivos, { multi: true }) +
+        cOpciones('seguridad.incidentes', 'En l’últim any, us ha passat alguna cosa d’aquestes?', O.s_incidentes, { multi: true }) +
+        cOpciones('seguridad.datos_personales', 'Quines dades de persones gestiona l’empresa?', O.s_datos, { multi: true }) +
+        cOpciones('seguridad.cobro_tarjeta', 'Com cobreu amb targeta?', O.s_tarjeta, { multi: true }) +
+        cOpciones('seguridad.formacion', 'En l’últim any, l’equip ha rebut formació o avisos sobre fraus per email o telèfon?', O.s_formacion) +
+      '</div>') +
+      (!activo('ia') ? '' : '<div class="bloque"><h3>Inteligencia artificial hoy</h3>' +
+        cOpciones('ia.uso', 'Es fa servir avui alguna IA (ChatGPT, Copilot, Gemini…) a la feina?', O.ia_uso) +
+        ((E.ia.uso && E.ia.uso !== 'no') ? cOpciones('ia.herramientas', '¿Cuáles?', O.ia_herr, { multi: true }) + cOpciones('ia.tipo_cuenta', 'Amb quin tipus de compte?', O.ia_cuenta) + cOpciones('ia.que_se_comparte', 'Què se sol enganxar o pujar a aquestes eines?', O.ia_comparte, { multi: true }) : '') +
+        cOpciones('ia.normas', 'Hi ha normes sobre el que es pot i no es pot fer amb IA?', O.ia_normas) +
+        cOpciones('ia.formacion', 'L’equip ha rebut formació sobre l’ús d’IA?', O.ia_formacion) +
+        cOpciones('ia.cara_cliente', 'La IA parla o publica directament davant dels clients?', O.ia_cliente, { multi: true }) +
+        cOpciones('ia.decisiones_personas', 'Es fa servir (o voleu fer servir) IA per a alguna d’aquestes coses?', O.ia_personas, { multi: true }) +
+        cOpciones('ia.automatizaciones', 'Quines automatitzacions teniu funcionant?', O.ia_autom, { multi: true }) +
+        ((E.ia.automatizaciones || []).filter(function (x) { return x !== 'ninguna'; }).length ? cOpciones('ia.quien_mantiene', 'Qui les manté?', O.ia_mantiene) : '') +
+        cOpciones('ia.sin_revision', 'Alguna IA o automatització pot enviar emails, pagar, canviar dades o publicar sense que ningú ho revisi?', O.si_no_nose) +
+        cTexto('ia.expectativas', 'Què t’agradaria que fes la IA al teu negoci?', { area: true, filas: 2, opcional: true }) +
+        cOpciones('ia.preocupaciones', 'Què et preocupa?', O.ia_preocupa, { multi: true }) +
+      '</div>') + '</section>';
+  };
+
+  function revision() {
+    var l = [];
+    var ok = function (t) { l.push('<li class="ok">✓ ' + t + '</li>'); };
+    var falta = function (t) { l.push('<li class="falta">! ' + t + '</li>'); };
+    if (E.empresa.nombre) ok('Empresa: ' + esc(E.empresa.nombre)); else falta('Falta el nombre de la empresa.');
+    if (E.equipo.length) ok(E.equipo.length + ' puestos en el equipo'); else falta('No has añadido ningún puesto en «Quién trabaja».');
+    if (E.herramientas.length) ok(E.herramientas.length + ' herramientas'); else falta('No has añadido herramientas.');
+    AREAS.forEach(function (a) {
+      var ps = E.areas[a.id].procesos;
+      var mia = areasMias().indexOf(a.id) >= 0;
+      if (!ps.length) { if (mia) falta(a.nombre + ': no has marcado ningún proceso.'); return; }
+      ps.forEach(function (p) {
+        var est = estadoProceso(p);
+        var detalles = [];
+        var pasos = p.pasos || [];
+        if (!pasos.length) detalles.push('sin pasos');
+        var sinQuien = pasos.filter(function (s) { return s.tipo !== 'espera' && !s.quien; }).length;
+        if (sinQuien) detalles.push(sinQuien + ' paso' + (sinQuien > 1 ? 's' : '') + ' sin quién');
+        if (pasos.some(function (s) { return s.sugerido; })) detalles.push('pasos sugeridos sin confirmar');
+        if (!p.resultado) detalles.push('falta cómo termina');
+        if (!(p.disparador || {}).tipo) detalles.push('falta cómo empieza');
+        if (pasos.length && !p.confirmado) detalles.push('falta confirmar el resumen');
+        if (est[0] === 'listo') ok(a.nombre + ' · ' + esc(p.nombre)); else falta(a.nombre + ' · ' + esc(p.nombre) + ': ' + detalles.join(', ') + '.');
+      });
+    });
+    if (activo('seguridad')) { if (E.seguridad.dos_pasos || E.seguridad.copias) ok('Seguridad'); else falta('Datos y seguridad sin contestar (son 2 minutos).'); }
+    EXTRAS.filter(function (q) { return q.obligatoria; }).forEach(function (q) {
+      var v = (E.extra || {})[q.id];
+      if (v === undefined || v === '' || (Array.isArray(v) && !v.length)) falta('Falta contestar: «' + esc(q.pregunta) + '».');
+    });
+    return '<ul class="revision">' + l.join('') + '</ul>';
+  }
+
+  RENDER.enviar = function () {
+    var contacto = [MARCA.email && '<a href="mailto:' + esc(MARCA.email) + '?subject=' + encodeURIComponent('Cuestionario de procesos · ' + (E.empresa.nombre || '')) + '&body=' + encodeURIComponent('Hola, te adjunto el archivo de respuestas del cuestionario.') + '">' + esc(MARCA.email) + '</a>', MARCA.telefono && esc(MARCA.telefono)].filter(Boolean).join(' · ');
+    return '<section class="seccion"><h2>Revisa i envia</h2><p class="intro">Així està el teu qüestionari. El que falta no impedeix enviar-lo: el que quedi en blanc ho completarem junts.</p>' +
+      '<div class="bloque"><h3>Estado</h3>' + revision() + '</div>' +
+      '<div class="bloque">' + cTexto('comentarios', 'Alguna cosa més que vulguis explicar-nos?', { area: true, opcional: true }) + '</div>' +
+      '<div class="bloque"><h3>Enviar</h3>' +
+        '<div class="acciones-envio"><button type="button" class="boton principal" data-accion="descargar">Descarrega les meves respostes</button>' +
+        (MARCA.webhook_formulario ? '<button type="button" class="boton acento" data-accion="enviar-web">Enviar a ' + esc(MARCA.nombre) + '</button>' : '') +
+        '<button type="button" class="boton" data-accion="copiar-texto">Copia com a text</button><button type="button" class="boton" data-accion="imprimir">Imprimeix o desa en PDF</button></div>' +
+        (AJ_TEXTOS.nota_final ? '<p class="intro">' + esc(conHuecos(AJ_TEXTOS.nota_final)) + '</p>' : '') +
+        '<div class="nota-envio"><b>Cuando lo descargues</b>, envía ese archivo a ' + esc(MARCA.nombre) + (contacto ? ' (' + contacto + ')' : '') + ' por email o WhatsApp. Si otra persona va a contestar otras áreas, que use este mismo cuestionario en su ordenador y envíe también su archivo.</div>' +
+      '</div></section>';
+  };
+
+  /* ---------- pintar ---------- */
+  function pintarCabecera() {
+    document.getElementById('cabecera').innerHTML = (MARCA.logo_data ? '<img src="' + MARCA.logo_data + '" alt="">' : '') + '<div class="cabecera-txt"><b>' + esc(MARCA.nombre) + '</b><span>' + esc(MARCA.eslogan || 'Cuestionario de procesos') + '</span></div><span class="guardado" id="guardado"></span>';
+    document.documentElement.style.setProperty('--marca', MARCA.color_principal || '#1f3a5f');
+    document.documentElement.style.setProperty('--acento', MARCA.color_acento || '#e4572e');
+    document.title = 'Cuestionario de procesos · ' + (MARCA.nombre || '');
+  }
+  function seccionHecha(id) {
+    if (id === 'inicio') return !!E.respondente.nombre;
+    if (id === 'empresa') return !!(E.empresa.nombre && E.empresa.actividad);
+    if (id === 'equipo') return E.equipo.length > 0;
+    if (id === 'herramientas') return E.herramientas.length > 0;
+    if (id === 'seguridad') return activo('seguridad') ? !!(E.seguridad.dos_pasos && E.seguridad.copias) : !!E.ia.uso;
+    if (id === 'enviar') return false;
+    var ps = E.areas[id].procesos;
+    return ps.length > 0 && ps.every(function (p) { return estadoProceso(p)[0] === 'listo'; });
+  }
+  function pintarIndice() {
+    var hechas = 0;
+    var mias = SECCIONES.filter(function (s) { return !s.area || areasMias().indexOf(s.id) >= 0; });
+    document.getElementById('indice').innerHTML = SECCIONES.map(function (s, k) {
+      var hecha = seccionHecha(s.id); if (hecha && mias.indexOf(s) >= 0) hechas++;
+      var otra = s.area && areasMias().indexOf(s.id) < 0;
+      return '<li class="' + (hecha ? 'hecho ' : '') + (otra ? 'otra' : '') + '"><button type="button" data-ir="' + s.id + '" class="' + (UI.seccion === s.id ? 'actual' : '') + '"><span class="num">' + (hecha ? '✓' : k + 1) + '</span><span class="txt">' + s.nombre + (otra ? '<small>la contesta otra persona</small>' : '') + '</span></button></li>';
+    }).join('');
+    var total = mias.length - 1;
+    var pct = Math.round(hechas / total * 100);
+    document.getElementById('barra').style.width = pct + '%';
+    document.getElementById('progreso-txt').textContent = pct + ' % completat';
+  }
+  function pintar(mantenerScroll) {
+    var y = window.scrollY;
+    var activo = document.activeElement;
+    var campoActivo = activo && (activo.getAttribute('data-campo') || '');
+    var abiertos = {};
+    document.querySelectorAll('details[data-mas-id]').forEach(function (d) { abiertos[d.getAttribute('data-mas-id')] = d.open; });
+    var s = SECCIONES.filter(function (x) { return x.id === UI.seccion; })[0] || SECCIONES[0];
+    var html = s.area ? RENDER.area(s.id) : RENDER[s.id]();
+    var extras = bloqueExtras(s.id);
+    if (extras) html = html.replace(/<\/section>\s*$/, extras + '</section>');
+    document.getElementById('seccion').innerHTML = html;
+    // Recordar qué desplegables de detalle estaban abiertos.
+    var k = 0;
+    document.querySelectorAll('#seccion details.mas').forEach(function (d) {
+      var id = UI.seccion + ':' + (k++);
+      d.setAttribute('data-mas-id', id);
+      if (abiertos[id]) d.open = true;
+    });
+    pintarIndice();
+    var idx = SECCIONES.indexOf(s);
+    document.getElementById('anterior').style.visibility = idx === 0 ? 'hidden' : 'visible';
+    document.getElementById('siguiente').style.visibility = idx === SECCIONES.length - 1 ? 'hidden' : 'visible';
+    if (mantenerScroll) {
+      window.scrollTo(0, y);
+      if (campoActivo) { var el = document.querySelector('[data-campo="' + campoActivo + '"]'); if (el && el.type !== 'radio') { el.focus(); } }
+    }
+  }
+  function ir(id) { UI.seccion = id; pintar(false); window.scrollTo(0, 0); guardar(); }
+
+  /* ---------- acciones ---------- */
+  function proc(area, i) { return E.areas[area].procesos[+i]; }
+  function pasoVacio(lista) { return { id: sigId(lista, 's'), que: '', quien: '', con: [], tipo: 'tarea' }; }
+  function cargarPlantilla(area, i) {
+    var p = proc(area, i);
+    var pl = (CATALOGO.procesos || []).filter(function (x) { return x.id === p.plantilla; })[0];
+    if (!pl) return;
+    var externoPor = function (clave) {
+      var re = clave === 'gestoria' ? /gestor|asesor/i : /proveedor|almac|distrib/i;
+      var x = E.externos.filter(function (y) { return re.test(y.nombre || '') || re.test(y.que_hace || ''); })[0];
+      return x ? x.id : '';
+    };
+    p.pasos = pl.pasos.map(function (s, k) {
+      var n = { id: 's' + (k + 1), que: s.que, quien: '', con: [], tipo: s.tipo, sugerido: true };
+      if (s.tipo === 'decision') n.decision = { pregunta: s.pregunta || s.que, opciones: (s.opciones || []).map(function (o) { return { texto: o.texto, destino: o.destino ? o.destino.replace(/^paso:(\d+)$/, 'paso:s$1') : 'siguiente', fin: o.fin || '' }; }) };
+      if (s.tipo === 'espera') n.espera = s.espera || '';
+      if (s.tipo === 'comunicacion') n.comunicacion = { sentido: s.sentido || 'envia', con: s.con && s.con !== 'cliente' ? externoPor(s.con) : 'cliente', que: s.mensaje || '' };
+      return n;
+    });
+    if (!p.disparador || !p.disparador.tipo) p.disparador = { tipo: pl.disparador, texto: pl.disparador_texto || '' };
+    if (!p.resultado) p.resultado = pl.resultado || '';
+  }
+  function limpiarReferencias(id, tipo) {
+    todosProcesos().forEach(function (x) {
+      (x.p.pasos || []).forEach(function (s) {
+        if (tipo === 'herr') s.con = (s.con || []).filter(function (h) { return h !== id; });
+        else {
+          if (s.quien === id) s.quien = '';
+          if (s.comunicacion && s.comunicacion.con === id) s.comunicacion.con = '';
+        }
+      });
+      if (tipo !== 'herr' && x.p.responsable === id) x.p.responsable = '';
+    });
+    AREAS.forEach(function (a) { if (E.areas[a.id].responsable === id) E.areas[a.id].responsable = ''; });
+  }
+
+  var ACCIONES = {
+    'cargar': function () { document.getElementById('cargar-archivo').click(); },
+    'borrar-todo': function () { if (confirm('¿Seguro? Se borra todo lo que has contestado en este navegador.')) { E = nuevo(); UI = { seccion: 'inicio', abierto: {} }; guardar(); pintar(); } },
+    'rol-rapido': function (d) { var r = ROLES_RAPIDOS[+d.i]; E.equipo.push({ id: sigId(E.equipo, 'r'), rol: r[0], personas: 1, area: r[1], vinculo: r[2] }); },
+    'nuevo-rol': function () { E.equipo.push({ id: sigId(E.equipo, 'r'), rol: '', personas: 1 }); },
+    'quitar-rol': function (d) { var r = E.equipo[+d.i]; if (!confirm('¿Quitar «' + (r.rol || 'este puesto') + '»? Se quitará también de los pasos donde aparezca.')) return false; limpiarReferencias(r.id, 'rol'); E.equipo.splice(+d.i, 1); },
+    'externo-rapido': function (d) { var r = EXTERNOS_RAPIDOS[+d.i]; E.externos.push({ id: sigId(E.externos, 'x'), nombre: r[0], que_hace: r[1] }); },
+    'nuevo-externo': function () { E.externos.push({ id: sigId(E.externos, 'x'), nombre: '', que_hace: '' }); },
+    'quitar-externo': function (d) { var r = E.externos[+d.i]; if (!confirm('¿Quitar «' + (r.nombre || 'este') + '»?')) return false; limpiarReferencias(r.id, 'ext'); E.externos.splice(+d.i, 1); },
+    'herr-rapida': function (d) { var h = HERR_RAPIDAS[+d.i]; E.herramientas.push({ id: sigId(E.herramientas, 'h'), nombre: h[0], categoria: h[1] }); },
+    'nueva-herr': function () { E.herramientas.push({ id: sigId(E.herramientas, 'h'), nombre: '' }); },
+    'quitar-herr': function (d) { var h = E.herramientas[+d.i]; if (!confirm('¿Quitar «' + (h.nombre || 'esta herramienta') + '»?')) return false; limpiarReferencias(h.id, 'herr'); E.herramientas.splice(+d.i, 1); },
+    'hacerla-mia': function (d) { if (areasMias().indexOf(d.area) < 0) E.respondente.areas.push(d.area); },
+    'elegir-proceso': function (d, el) {
+      var area = UI.seccion;
+      var lista = E.areas[area].procesos;
+      var pos = lista.map(function (p) { return p.plantilla; }).indexOf(d.plantilla);
+      if (el.checked && pos < 0) {
+        var pl = (CATALOGO.procesos || []).filter(function (x) { return x.id === d.plantilla; })[0];
+        lista.push({ id: d.plantilla, plantilla: d.plantilla, nombre: pl.nombre, disparador: {}, frecuencia: {}, pasos: [] });
+        UI.abierto[area + ':' + d.plantilla] = true;
+      } else if (!el.checked && pos >= 0) {
+        if ((lista[pos].pasos || []).length && !confirm('Este proceso ya tiene pasos. ¿Quitarlo igualmente?')) { el.checked = true; return false; }
+        lista.splice(pos, 1);
+      }
+    },
+    'proceso-propio': function (d) {
+      var nombre = prompt('¿Cómo se llama el proceso? Por ejemplo: «Alta de socios del gimnasio»');
+      if (!nombre) return false;
+      var lista = E.areas[d.area].procesos;
+      var id = d.area + '-p' + (lista.filter(function (p) { return !p.plantilla; }).length + 1) + '-' + Date.now().toString(36).slice(-3);
+      lista.push({ id: id, plantilla: null, nombre: nombre.trim(), disparador: {}, frecuencia: {}, pasos: [] });
+      UI.abierto[d.area + ':' + id] = true;
+    },
+    'quitar-proceso': function (d) { var p = proc(d.area, d.i); if (!confirm('¿Quitar «' + p.nombre + '» y todo lo que has contado de él?')) return false; E.areas[d.area].procesos.splice(+d.i, 1); },
+    'cargar-plantilla': function (d) { cargarPlantilla(d.area, d.i); },
+    'nuevo-paso': function (d) { var p = proc(d.area, d.i); p.pasos = p.pasos || []; p.pasos.push(pasoVacio(p.pasos)); p.confirmado = false; },
+    'insertar-paso': function (d) { var p = proc(d.area, d.i); p.pasos.splice(+d.j + 1, 0, pasoVacio(p.pasos)); p.confirmado = false; },
+    'quitar-paso': function (d) {
+      var p = proc(d.area, d.i); var s = p.pasos[+d.j];
+      if ((s.que || '').trim() && !confirm('¿Borrar el paso «' + s.que + '»?')) return false;
+      p.pasos.splice(+d.j, 1);
+      p.pasos.forEach(function (x) { if (x.decision) x.decision.opciones.forEach(function (o) { if (o.destino === 'paso:' + s.id) o.destino = ''; }); });
+      p.confirmado = false;
+    },
+    'subir-paso': function (d) { var p = proc(d.area, d.i); var j = +d.j; if (j > 0) { var t = p.pasos[j]; p.pasos[j] = p.pasos[j - 1]; p.pasos[j - 1] = t; p.confirmado = false; } },
+    'bajar-paso': function (d) { var p = proc(d.area, d.i); var j = +d.j; if (j < p.pasos.length - 1) { var t = p.pasos[j]; p.pasos[j] = p.pasos[j + 1]; p.pasos[j + 1] = t; p.confirmado = false; } },
+    'tipo-paso': function (d) {
+      var s = proc(d.area, d.i).pasos[+d.j];
+      s.tipo = d.tipo; delete s.sugerido;
+      if (d.tipo === 'decision' && !s.decision) s.decision = { pregunta: s.que && /\?$/.test(s.que) ? s.que : '', opciones: [{ texto: 'Sí', destino: 'siguiente' }, { texto: 'No', destino: '' }] };
+      if (d.tipo === 'comunicacion' && !s.comunicacion) s.comunicacion = { sentido: 'envia', con: 'cliente', que: '' };
+      proc(d.area, d.i).confirmado = false;
+    },
+    'nueva-opcion': function (d) { var s = proc(d.area, d.i).pasos[+d.j]; s.decision = s.decision || { opciones: [] }; s.decision.opciones.push({ texto: '', destino: '' }); },
+    'quitar-opcion': function (d) { proc(d.area, d.i).pasos[+d.j].decision.opciones.splice(+d.k, 1); },
+    'aceptar-sugerido': function (d) { delete proc(d.area, d.i).pasos[+d.j].sugerido; },
+    'confirmar': function (d) {
+      var p = proc(d.area, d.i);
+      if (p.pasos.some(function (s) { return s.sugerido; }) && !confirm('Quedan pasos sugeridos sin confirmar (en amarillo). ¿Los das todos por buenos tal como están?')) return false;
+      p.pasos.forEach(function (s) { delete s.sugerido; });
+      p.confirmado = true;
+    },
+    'desconfirmar': function (d) { proc(d.area, d.i).confirmado = false; },
+    'descargar': function () {
+      var nombre = 'respuestas-' + (E.empresa.nombre || 'empresa').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + (E.respondente.nombre || 'anonimo').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.json';
+      var blob = new Blob([JSON.stringify(E, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      aviso('Descargado: ' + nombre);
+      return false;
+    },
+    'enviar-web': function () {
+      var fd = new FormData();
+      fd.append('access_key', WEB3FORMS_KEY);
+      fd.append('subject', 'Diagnòstic de processos — ' + (E.empresa.nombre || 'sense nom'));
+      fd.append('from_name', 'Web Diagnòstic Processos SPAI');
+      fd.append('formato', 'diagnostic-processos');
+      fd.append('datos', JSON.stringify(E, null, 1));
+      var ok = function () { aviso('Enviado. Por si acaso, descarga también el archivo.'); };
+      fetch(MARCA.webhook_formulario, { method: 'POST', body: fd })
+        .then(function (r) { return r.json().then(function(j){ if(!j.success) throw new Error(j.message||'error'); ok(); }); })
+        .catch(function () { aviso('No se ha podido enviar. Descarga el archivo y mándalo por email a contact@solutionpartner.ai.'); });
+      return false;
+    },
+    'copiar-texto': function () {
+      var t = textoPlano();
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { aviso('Copiado. Pégalo en un email o un WhatsApp.'); }).catch(function () {
+        var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); aviso('Copiado.'); } catch (e) { aviso('No se ha podido copiar.'); } ta.remove();
+      });
+      return false;
+    },
+    'imprimir': function () { window.print(); return false; }
+  };
+
+  function textoPlano() {
+    var L = [];
+    L.push('CUESTIONARIO DE PROCESOS · ' + (E.empresa.nombre || '')); L.push('Contesta: ' + (E.respondente.nombre || '') + ' (' + (E.respondente.cargo || '') + ')'); L.push('');
+    L.push('EQUIPO: ' + E.equipo.map(function (r) { return r.rol + ' (' + (r.personas || 1) + ')'; }).join(', '));
+    L.push('DE FUERA: ' + E.externos.map(function (x) { return x.nombre; }).join(', '));
+    L.push('HERRAMIENTAS: ' + E.herramientas.map(function (h) { return h.nombre; }).join(', '));
+    todosProcesos().forEach(function (x) {
+      var p = x.p; L.push(''); L.push('== ' + x.area.nombre.toUpperCase() + ' · ' + p.nombre + ' ==');
+      var d = p.disparador || {}; L.push('Empieza: ' + (d.texto || etiqueta(O.disparador, d.tipo) || '?'));
+      (p.pasos || []).forEach(function (s, k) {
+        if (s.tipo === 'decision') L.push((k + 1) + '. [DECISIÓN] ' + ((s.decision || {}).pregunta || s.que) + ' → ' + ((s.decision || {}).opciones || []).map(function (o) { return o.texto + ': ' + (o.destino || '?') + (o.fin ? ' (' + o.fin + ')' : ''); }).join(' | '));
+        else if (s.tipo === 'espera') L.push((k + 1) + '. [ESPERA] ' + (s.que || '') + ' ' + (s.espera || ''));
+        else L.push((k + 1) + '. ' + s.que + ' — ' + nombreQuien(s.quien) + ((s.con || []).length ? ' — con ' + s.con.map(nombreHerr).join(', ') : '') + (s.tiempo ? ' — ' + etiqueta(O.tiempo, s.tiempo) : '') + (s.dolor ? ' — PROBLEMA: ' + s.dolor : ''));
+      });
+      L.push('Termina: ' + (p.resultado || '?'));
+    });
+    if (EXTRAS.length) {
+      L.push(''); L.push('== OTRAS PREGUNTAS ==');
+      EXTRAS.forEach(function (q) { var v = (E.extra || {})[q.id]; L.push(q.pregunta + ' ' + (Array.isArray(v) ? v.join(', ') : (v === undefined ? '' : v))); });
+    }
+    return L.join('\n');
+  }
+
+  /* ---------- eventos ---------- */
+  var cont = document.getElementById('seccion');
+  function valor(el) {
+    if (el.type === 'number') return el.value === '' ? '' : Number(el.value);
+    return el.value;
+  }
+  function tocado(ruta) {
+    // Si se edita un paso sugerido, deja de serlo; y cualquier cambio en los pasos pide reconfirmar.
+    var m = ruta.match(/^areas\.(\w+)\.procesos\.(\d+)\.pasos\.(\d+)\./);
+    if (m) {
+      var p = proc(m[1], m[2]);
+      var s = p.pasos[+m[3]];
+      if (s && s.sugerido) { delete s.sugerido; var tarj = document.querySelector('[data-paso="' + m[1] + ':' + m[2] + ':' + m[3] + '"]'); if (tarj) { tarj.classList.remove('sugerido'); var e1 = tarj.querySelector('.etq-sugerido'); if (e1) e1.remove(); var b1 = tarj.querySelector('[data-accion="aceptar-sugerido"]'); if (b1) b1.remove(); } }
+      p.confirmado = false;
+    }
+  }
+  var refresco = null;
+  function refrescarProceso(ruta) {
+    var m = ruta.match(/^areas\.(\w+)\.procesos\.(\d+)\./);
+    if (!m) return;
+    clearTimeout(refresco);
+    refresco = setTimeout(function () {
+      var p = proc(m[1], m[2]);
+      if (!p) return;
+      var r = document.getElementById('relato-' + m[1] + '-' + m[2]);
+      if (r) r.innerHTML = relato(p);
+      var det = document.querySelector('details.proceso[data-proceso="' + m[1] + ':' + p.id + '"] > summary');
+      if (det) { var est = estadoProceso(p); det.querySelector('b').textContent = p.nombre || 'Proceso sin nombre'; var e2 = det.querySelector('.estado'); e2.className = 'estado ' + est[0]; e2.textContent = est[1]; }
+    }, 500);
+  }
+  cont.addEventListener('input', function (ev) {
+    var el = ev.target;
+    var ruta = el.getAttribute('data-campo');
+    if (!ruta || el.type === 'radio' || el.tagName === 'SELECT') return;
+    poner(ruta, valor(el));
+    tocado(ruta);
+    guardar();
+    pintarIndice();
+    refrescarProceso(ruta);
+  });
+  cont.addEventListener('change', function (ev) {
+    var el = ev.target;
+    var ruta = el.getAttribute('data-campo');
+    if (ruta && (el.type === 'radio' || el.tagName === 'SELECT')) {
+      poner(ruta, el.value);
+      tocado(ruta);
+      guardar();
+      pintar(true);
+      return;
+    }
+    var multi = el.getAttribute('data-multi');
+    if (multi) {
+      var actual = (leer(multi) || []).slice();
+      var v = el.value;
+      if (el.checked) {
+        var max = +el.getAttribute('data-max');
+        if (max && actual.length >= max) { el.checked = false; aviso('Como mucho ' + max + '.'); return; }
+        if (v === 'nose' || v === 'no' || v === 'ninguno' || v === 'ninguna' || v === 'nada' || v === 'no_tarjeta') actual = [v];
+        else actual = actual.filter(function (x) { return ['nose', 'no', 'ninguno', 'ninguna', 'nada', 'no_tarjeta'].indexOf(x) < 0; }).concat([v]);
+      } else actual = actual.filter(function (x) { return x !== v; });
+      poner(multi, actual);
+      tocado(multi + '.');
+      guardar();
+      pintar(true);
+      return;
+    }
+    var bool = el.getAttribute('data-bool');
+    if (bool) { poner(bool, el.checked); guardar(); }
+    if (el.getAttribute('data-accion') === 'elegir-proceso') ejecutarAccion(el);
+  });
+  cont.addEventListener('toggle', function (ev) {
+    var d = ev.target;
+    if (d.matches && d.matches('details.proceso')) UI.abierto[d.getAttribute('data-proceso')] = d.open;
+  }, true);
+  function ejecutarAccion(el) {
+    var accion = el.getAttribute('data-accion');
+    var f = ACCIONES[accion];
+    if (!f) return;
+    var d = {}; Array.prototype.slice.call(el.attributes).forEach(function (a) { if (a.name.indexOf('data-') === 0) d[a.name.slice(5)] = a.value; });
+    var r = f(d, el);
+    if (r === false) return;
+    guardar();
+    pintar(true);
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button');
+    if (!b) return;
+    if (b.hasAttribute('data-ir')) { ir(b.getAttribute('data-ir')); return; }
+    if (b.hasAttribute('data-accion')) { ev.preventDefault(); ejecutarAccion(b); }
+  });
+  document.getElementById('anterior').addEventListener('click', function () { var k = SECCIONES.map(function (s) { return s.id; }).indexOf(UI.seccion); if (k > 0) ir(SECCIONES[k - 1].id); });
+  document.getElementById('siguiente').addEventListener('click', function () { var k = SECCIONES.map(function (s) { return s.id; }).indexOf(UI.seccion); if (k < SECCIONES.length - 1) ir(SECCIONES[k + 1].id); });
+  document.getElementById('cargar-archivo').addEventListener('change', function (ev) {
+    var f = ev.target.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var d = JSON.parse(r.result);
+        if (String(d.formato || '').indexOf('respuestas-diagnostico/') !== 0 || !d.areas) throw new Error('formato');
+        if (!confirm('Se va a sustituir lo que hay en este navegador por el archivo «' + f.name + '». ¿Seguir?')) return;
+        var base = nuevo();
+        AREAS.forEach(function (a) { if (!d.areas[a.id]) d.areas[a.id] = base.areas[a.id]; });
+        E = Object.assign(base, d);
+        if (!E.extra) E.extra = {};
+        guardar(); pintar(); aviso('Archivo cargado.');
+      } catch (e) { aviso('Ese archivo no es de este cuestionario.'); }
+      ev.target.value = '';
+    };
+    r.readAsText(f);
+  });
+
+  /* ---------- arranque ---------- */
+  if (!cargarGuardado()) E = nuevo();
+  if (!E.extra) E.extra = {};
+  AREAS.forEach(function (a) { if (!E.areas[a.id]) E.areas[a.id] = { responsable: '', notas: '', procesos: [] }; });
+  if (MARCA.cliente && !E.empresa.nombre) E.empresa.nombre = MARCA.cliente;
+  pintarCabecera();
+  pintar();
+  window.CUESTIONARIO = { estado: function () { return E; }, ir: ir };
+})();
+</script>
 </body>
-</html>
+<script>
+/* Capa de traducció ES->CA aplicada al DOM renderitzat (patró business-ai-os).
+   El motor del kit01 queda intacte; només es tradueix el text visible. */
+(function () {
+  const T = {
+  "Empresas": "Empreses",
+  "Particulares": "Particulars",
+  "Administración pública": "Administració pública",
+  "A través de marketplaces (Amazon…)": "A través de marketplaces (Amazon…)",
+  "Solo yo": "Només jo",
+  "2 a 9": "De 2 a 9",
+  "10 a 49": "De 10 a 49",
+  "50 a 249": "De 50 a 249",
+  "250 o más": "250 o més",
+  "Recomendación / boca a boca": "Recomanació / boca-orella",
+  "Redes sociales": "Xarxes socials",
+  "Anuncios de pago": "Anuncis de pagament",
+  "Web y Google": "Web i Google",
+  "Ficha de Google Maps": "Fitxa de Google Maps",
+  "Ferias y eventos": "Fires i esdeveniments",
+  "Comerciales que salen a buscar": "Comercials que surten a buscar",
+  "Pasan por la tienda o el local": "Passen per la botiga o el local",
+  "Otro": "Altre",
+  "Vender más": "Vendre més",
+  "Reducir costes": "Reduir costos",
+  "Liberar mi tiempo": "Alliberar el meu temps",
+  "Atender mejor al cliente": "Atendre millor el client",
+  "Tener menos errores": "Tenir menys errors",
+  "Crecer sin contratar": "Créixer sense contractar",
+  "Cumplir la normativa": "Complir la normativa",
+  "Preparar una venta o un relevo": "Preparar una venda o un relleu",
+  "No": "No",
+  "Cuestionarios de seguridad": "Qüestionaris de seguretat",
+  "ISO 27001": "ISO 27001",
+  "ENS": "ENS",
+  "NIS2": "NIS2",
+  "Contrato de protección de datos": "Contracte de protecció de dades",
+  "Seguro de ciberriesgos": "Assegurança de ciberriscos",
+  "Sí": "Sí",
+  "Factura la gestoría": "Factura la gestoria",
+  "No sé": "No ho sé",
+  "Per entrar al correu, al banc i als programes principals, es demana un codi del mòbil a més de la contrasenya?": "Per entrar al correu, al banc i als programes principals, es demana un codi del mòbil a més de la contrasenya?",
+  "En todos": "A tots",
+  "En correo y banco, no en el resto": "Al correu i al banc, no a la resta",
+  "Solo en algunos": "Només a alguns",
+  "Hi ha usuaris i contrasenyes que fan servir diverses persones (info@, xarxes, banc, botiga)?": "Hi ha usuaris i contrasenyes que fan servir diverses persones (info@, xarxes, banc, botiga)?",
+  "No, cada uno el suyo": "No, cadascú el seu",
+  "Sí, en algunos": "Sí, a alguns",
+  "Sí, en la mayoría": "Sí, a la majoria",
+  "On es guarden normalment les contrasenyes de la feina?": "On es guarden normalment les contrasenyes de la feina?",
+  "Gestor de contraseñas de empresa": "Gestor de contrasenyes de l’empresa",
+  "Las recuerda el navegador": "Les recorda el navegador",
+  "Excel, notas o papel": "Excel, notes o paper",
+  "Cada uno las memoriza": "Cadascú les memoritza",
+  "Feu còpies de seguretat de la informació important?": "Feu còpies de seguretat de la informació important?",
+  "Sí, automáticas, guardadas aparte y alguna vez hemos recuperado algo": "Sí, automàtiques, guardades a part i alguna vegada hem recuperat alguna cosa",
+  "Sí, pero nunca hemos probado a recuperar": "Sí, però mai hem provat de recuperar",
+  "Solo lo que guarda la nube (Drive, OneDrive…)": "Només el que guarda el núvol (Drive, OneDrive…)",
+  "Quan algú se’n va (o deixeu de treballar amb una agència), què passa amb els seus accessos?": "Quan algú se’n va (o deixeu de treballar amb una agència), què passa amb els seus accessos?",
+  "Se quitan todos el mismo día, con una lista": "Es treuen tots el mateix dia, amb una llista",
+  "Se van quitando cuando nos acordamos": "Es van traient quan ens en recordem",
+  "Solo cambiamos algunas contraseñas": "Només canviem algunes contrasenyes",
+  "Nada especial": "Res d’especial",
+  "Amb quins equips es treballa? Marca tot el que s’hi apliqui": "Amb quins equips es treballa? Marca tot el que s’hi apliqui",
+  "Ordenadores de la empresa": "Ordinadors de l’empresa",
+  "Ordenadores personales": "Ordinadors personals",
+  "Móviles personales con correo o WhatsApp del trabajo": "Mòbils personals amb correu o WhatsApp de la feina",
+  "Se actualizan solos": "S’actualitzen sols",
+  "Tienen antivirus": "Tenen antivirus",
+  "Los gestiona alguien de forma centralizada": "Els gestiona algú de forma centralitzada",
+  "Disco cifrado": "Disc xifrat",
+  "En l’últim any, us ha passat alguna cosa d’aquestes?": "En l’últim any, us ha passat alguna cosa d’aquestes?",
+  "Emails o WhatsApp falsos de proveedor, banco o jefe": "Emails o WhatsApp falsos de proveïdor, banc o cap",
+  "Intento de cambiar la cuenta bancaria de una factura": "Intent de canviar el compte bancari d’una factura",
+  "Una cuenta robada": "Un compte robat",
+  "Virus o secuestro de datos": "Virus o segrest de dades",
+  "Pérdida de datos o de un portátil": "Pèrdua de dades o d’un portàtil",
+  "Web caída o hackeada": "Web caiguda o piratejada",
+  "Nada": "Res",
+  "Quines dades de persones gestiona l’empresa?": "Quines dades de persones gestiona l’empresa?",
+  "Contacto de clientes o proveedores": "Contacte de clients o proveïdors",
+  "Empleados y nóminas": "Empleats i nòmines",
+  "DNI o documentos": "DNI o documents",
+  "Bancarios": "Bancaris",
+  "Salud (también bajas, alergias)": "Salut (també baixes, al·lèrgies)",
+  "Huella o cara": "Petjada o cara",
+  "Menores": "Menors",
+  "Ubicación": "Ubicació",
+  "Ideología, religión, sindicato, origen u orientación": "Ideologia, religió, sindicat, origen o orientació",
+  "Antecedentes penales": "Antecedents penals",
+  "Deudas o solvencia": "Deutes o solvència",
+  "Ninguno": "Cap",
+  "Com cobreu amb targeta?": "Com cobreu amb targeta?",
+  "Datáfono": "Datàfon",
+  "Pasarela que lleva al banco, Stripe o PayPal": "Passarel·la que porta al banc, Stripe o PayPal",
+  "Formulario de pago dentro de nuestra web": "Formulari de pagament dins de la nostra web",
+  "Nos dan el número por teléfono, email o papel": "Ens donen el número per telèfon, email o paper",
+  "No cobramos con tarjeta": "No cobrem amb targeta",
+  "En l’últim any, l’equip ha rebut formació o avisos sobre fraus per email o telèfon?": "En l’últim any, l’equip ha rebut formació o avisos sobre fraus per email o telèfon?",
+  "Sí, formación": "Sí, formació",
+  "Solo avisos informales": "Només avisos informals",
+  "Algunas personas, por su cuenta": "Algunes persones, pel seu compte",
+  "Sí, con herramientas que paga la empresa": "Sí, amb eines que paga l’empresa",
+  "Sí, y además integrada en procesos": "Sí, i a més integrada en processos",
+  "Hi ha normes sobre el que es pot i no es pot fer amb IA?": "Hi ha normes sobre el que es pot i no es pot fer amb IA?",
+  "Escritas y comunicadas": "Escrites i comunicades",
+  "De palabra": "De paraula",
+  "Formación organizada": "Formació organitzada",
+  "Algunos por su cuenta": "Alguns pel seu compte",
+  "Chatbot en web o WhatsApp": "Chatbot a la web o WhatsApp",
+  "Respuestas enviadas sin revisar": "Respostes enviades sense revisar",
+  "Contenido generado que se publica": "Contingut generat que es publica",
+  "Llamadas con voz de IA": "Trucades amb veu d’IA",
+  "Filtrar CVs": "Filtrar CVs",
+  "Evaluar empleados": "Avaluar empleats",
+  "Dar crédito o aplazamientos": "Donar crèdit o ajornaments",
+  "Precios personalizados": "Preus personalitzats",
+  "Integraciones de los propios programas": "Integracions dels mateixos programes",
+  "Desarrollos a medida": "Desenvolupaments a mida",
+  "Ninguna": "Cap",
+  "Privacidad": "Privacitat",
+  "Errores": "Errors",
+  "Coste": "Cost",
+  "Que el equipo no lo use": "Que l’equip no ho faci servir",
+  "Normativa": "Normativa",
+  "Depender de un proveedor": "Dependre d’un proveïdor",
+  "Cómo os da a conocer el negocio": "Com us doneu a conèixer el negoci",
+  "¿Cuántas personas trabajan, contando socios y autónomos habituales?": "Quantes persones treballen, comptant socis i autònoms habituals?",
+  "¿Qué vendéis y a quién?": "Què veneu i a qui?",
+  "Autorizo a revisar desde fuera": "Autoritzo a revisar des de fora"
+}
+  const KEYS = Object.keys(T).sort(function (a, b) { return b.length - a.length; });
+  function scape(s){ return String(s).replace(/[&<>"]/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function tradueixNode(n){
+    var v = n.nodeValue;
+    if (!v || v.trim().length < 1) return;
+    var aplica = false, out = v;
+    for (var k = 0; k < KEYS.length; k++) {
+      var clau = KEYS[k], ca = T[clau];
+      if (out.indexOf(clau) !== -1) { out = out.split(clau).join(ca); aplica = true; }
+    }
+    if (aplica && out !== v) n.nodeValue = out;
+  }
+  function tradueix(){
+    var cont = document.getElementById('seccion'); if (cont){
+      var walker = document.createTreeWalker(cont, NodeFilter.SHOW_TEXT);
+      var n; while ((n = walker.nextNode())) tradueixNode(n);
+    }
+    var ind = document.getElementById('progreso-txt'); if (ind) tradueixNode(ind);
+  }
+  // El motor substitueix #seccion a cada pintar(): observem i re-traduim.
+  var obj = document.getElementById('seccion');
+  if (obj && 'MutationObserver' in window) {
+    new MutationObserver(tradueix).observe(obj, { childList: true, subtree: true, characterData: true });
+  }
+  tradueix();
+})();
+</script>
+
+</body>
