@@ -225,6 +225,7 @@ var AJUSTES = /*__AJUSTES__*/{"textos":{"titulo":"Explica’ns com treballeu","i
     { id: 'herramientas', nombre: 'Eines' }
   ].concat(AREAS.map(function (a) { return { id: a.id, nombre: a.nombre, area: true }; }))
     .concat(BLOQUE_DATOS ? [{ id: 'seguridad', nombre: BLOQUE_DATOS }] : [])
+    .concat(activo('auditoria_global') ? [{ id: 'auditoria', nombre: 'Auditoria global (opcional)' }] : [])
     .concat([{ id: 'enviar', nombre: 'Revisar i enviar' }]);
 
   /* ---------- opciones ---------- */
@@ -326,6 +327,7 @@ var AJUSTES = /*__AJUSTES__*/{"textos":{"titulo":"Explica’ns com treballeu","i
       equipo: [], externos: [], herramientas: [], areas: areas,
       seguridad: { dispositivos: [], incidentes: [], datos_personales: [], cobro_tarjeta: [] },
       ia: { herramientas: [], que_se_comparte: [], cara_cliente: [], decisiones_personas: [], automatizaciones: [], preocupaciones: [] },
+      auditoria: { interes: '', competidores: '', notas: '' },
       extra: {},
       comentarios: ''
     };
@@ -510,6 +512,20 @@ var AJUSTES = /*__AJUSTES__*/{"textos":{"titulo":"Explica’ns com treballeu","i
         cOpciones('empresa.requisitos_seguridad_clientes', '¿Algún cliente os pide requisitos de seguridad o certificados?', O.requisitos, { multi: true }) +
         (E.empresa.pais === 'España' ? cSelect('empresa.verifactu', '¿Vuestro programa de facturación está adaptado a Verifactu?', O.verifactu) : '') +
       '</details>' : '') + '</section>';
+  };
+
+  RENDER.auditoria = function () {
+    var i = E.auditoria || {};
+    return '<section class="seccion"><h2>Auditoria global <span style="font-weight:400;font-size:.6em;color:var(--acento)">(opcional)</span></h2>' +
+      '<p class="intro">A més del mapa de processos, podem preparar una <b>auditoria global</b> del teu negoci: dades de mercat i del sector, en quin punt estàs en comparació amb els teus competidors, i el <b>cost d\u2019oportunitat</b> (quants diners et deixes perdre per com treballeu avui). Tot plegat posa xifres al potencial i ajuda a prioritzar on rendeix més automatitzar.</p>' +
+      '<div class="bloque"><h3>Vols que la incloguem?</h3>' +
+        cOpciones('auditoria.interes', 'La teva decisió', [['si', 'Sí, vull l\u2019auditoria global a més del mapa de processos'], ['no', 'No, només el mapa de processos'], ['quizas', 'Ho vull valorar / que me n\u2019expliquis']], { ayuda: 'Sense cost ni compromís ara: només ens cal saber si hi ha interès per proposar-te-la amb abast i preu.' }) +
+      '</div>' +
+      '<div class="bloque"><h3>Per si acaba engrescant-te (tot opcional)</h3>' +
+        cTexto('auditoria.competidores', 'Quins són els teus 2-5 competidors principals?', { area: true, opcional: true, ph: 'Nom de cada un i, si el saps, la seva web' }) +
+        cTexto('auditoria.notas', 'Algun context que ens ajudi a entendre el teu mercat o sector?', { area: true, opcional: true, ph: 'Opcional' }) +
+      '</div>' +
+    '</section>';
   };
 
   RENDER.equipo = function () {
@@ -823,6 +839,7 @@ var AJUSTES = /*__AJUSTES__*/{"textos":{"titulo":"Explica’ns com treballeu","i
     if (id === 'equipo') return E.equipo.length > 0;
     if (id === 'herramientas') return E.herramientas.length > 0;
     if (id === 'seguridad') return activo('seguridad') ? !!(E.seguridad.dos_pasos && E.seguridad.copias) : !!E.ia.uso;
+    if (id === 'auditoria') return true;
     if (id === 'enviar') return false;
     var ps = E.areas[id].procesos;
     return ps.length > 0 && ps.every(function (p) { return estadoProceso(p)[0] === 'listo'; });
